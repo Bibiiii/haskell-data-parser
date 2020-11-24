@@ -13,18 +13,23 @@ initialiseDB =
         conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
         run conn "CREATE TABLE IF NOT EXISTS planets (\
             \name VARCHAR(40) NOT NULL, \
-            \rotation_period VARCHAR(40) NOT NULL, \
-            \orbital_period VARCHAR(40) NOT NULL, \
-            \diameter VARCHAR(40) NOT NULL, \
+            \rotation_period INT NOT NULL, \
+            \orbital_period INT NOT NULL, \
+            \diameter INT NOT NULL, \
             \climate VARCHAR(40) NOT NULL, \
             \gravity VARCHAR(40) NOT NULL, \
             \terrain VARCHAR(40) NOT NULL, \
-            \surface_water VARCHAR(40) NOT NULL, \
-            \population VARCHAR(40) NOT NULL \
+            \surface_water INT, \
+            \population BIGINT \
             \)" []
         commit conn
         return conn
 
+
+convertUnkToNothing :: String -> Maybe String
+convertUnkToNothing "unknown" = Nothing
+convertUnkToNothing s = Just s
+    
 planetToSqlValues :: Planet -> [SqlValue]
 planetToSqlValues planet = [
         toSql $ name planet,
@@ -34,8 +39,8 @@ planetToSqlValues planet = [
         toSql $ climate planet,
         toSql $ gravity planet,
         toSql $ terrain planet,
-        toSql $ surface_water planet,
-        toSql $ population planet
+        toSql $ convertUnkToNothing $ surface_water planet,
+        toSql $ convertUnkToNothing $ population planet
     ]
 
 prepareInsertPlanetSmt :: Connection -> IO Statement
