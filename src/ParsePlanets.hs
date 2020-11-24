@@ -1,8 +1,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Parse
-    ( parse,
-      Results ( results ),
+module ParsePlanets
+    ( parsePlanets,
+      PlanetResults ( results, next ),
       Planet ( name, rotation_period, orbital_period, diameter, climate, gravity, terrain, surface_water, population )
     ) where
 
@@ -25,15 +25,15 @@ data Planet = Planet {
 instance FromJSON Planet
 instance ToJSON Planet
 
-data Results = Results {
-            -- count :: Int,
-            -- next :: String,
-            -- previous :: Maybe String,
+data PlanetResults = PlanetResults {
+            count :: Int,
+            next :: Maybe String,
+            previous :: Maybe String,
             results :: [Planet]
         } deriving (Show, Generic)
 
-instance FromJSON Results
-instance ToJSON Results
+instance FromJSON PlanetResults
+instance ToJSON PlanetResults
     
-parse :: L8.ByteString -> Either String Results
-parse json = eitherDecode json :: Either String Results
+parsePlanets :: L8.ByteString -> Either String PlanetResults
+parsePlanets json = eitherDecode json :: Either String PlanetResults

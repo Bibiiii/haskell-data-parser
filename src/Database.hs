@@ -5,7 +5,7 @@ module Database
 
 import Database.HDBC
 import Database.HDBC.PostgreSQL
-import Parse
+import ParsePlanets
 
 initialiseDB :: IO Connection
 initialiseDB =
@@ -13,13 +13,13 @@ initialiseDB =
         conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
         run conn "CREATE TABLE IF NOT EXISTS planets (\
             \name VARCHAR(40) NOT NULL, \
-            \rotation_period INT NOT NULL, \
-            \orbital_period INT NOT NULL, \
-            \diameter INT NOT NULL, \
-            \climate VARCHAR(40) NOT NULL, \
-            \gravity VARCHAR(40) NOT NULL, \
-            \terrain VARCHAR(40) NOT NULL, \
-            \surface_water INT, \
+            \rotation_period INT, \
+            \orbital_period INT, \
+            \diameter INT, \
+            \climate VARCHAR(40), \
+            \gravity VARCHAR(40), \
+            \terrain VARCHAR(40), \
+            \surface_water FLOAT(2), \
             \population BIGINT \
             \)" []
         commit conn
@@ -33,12 +33,12 @@ convertUnkToNothing s = Just s
 planetToSqlValues :: Planet -> [SqlValue]
 planetToSqlValues planet = [
         toSql $ name planet,
-        toSql $ rotation_period planet,
-        toSql $ orbital_period planet,
-        toSql $ diameter planet,
-        toSql $ climate planet,
-        toSql $ gravity planet,
-        toSql $ terrain planet,
+        toSql $ convertUnkToNothing $ rotation_period planet,
+        toSql $ convertUnkToNothing $ orbital_period planet,
+        toSql $ convertUnkToNothing $ diameter planet,
+        toSql $ convertUnkToNothing $ climate planet,
+        toSql $ convertUnkToNothing $ gravity planet,
+        toSql $ convertUnkToNothing $ terrain planet,
         toSql $ convertUnkToNothing $ surface_water planet,
         toSql $ convertUnkToNothing $ population planet
     ]

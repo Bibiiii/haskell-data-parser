@@ -1,18 +1,9 @@
 module Main where
 
-import HTTP
-import Parse
-import Database
+import DownloadJson
 
 main :: IO ()
 main = do
-    let url = "https://swapi.dev/api/planets/"
-    json <- download url
+    downloadJson "https://swapi.dev/api/planets/"
     print "Parsing..."
-    case (parse json) of
-        Left err -> print err
-        Right res -> do
-            print "Saving on DB..."
-            conn <- initialiseDB
-            savePlanets (results res) conn
     print "Done!"
