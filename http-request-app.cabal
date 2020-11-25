@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ffb25e428d987737698c1c15ae56c7aba44252e62480172c96ed434506e04128
+-- hash: 82e73ddef8f9df057613f44316698fde4ff52c2713ab4d6664b79a39cb6ff789
 
 name:           http-request-app
 version:        0.1.0.0
@@ -28,10 +28,10 @@ source-repository head
 library
   exposed-modules:
       Database
-      DownloadJson
       HTTP
       Lib
       ParsePlanets
+      ProcessJson
   other-modules:
       Paths_http_request_app
   hs-source-dirs:
