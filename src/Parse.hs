@@ -2,38 +2,24 @@
 
 module Parse
     ( parse,
-      Results ( results ),
-      Planet ( name, rotation_period, orbital_period, diameter, climate, gravity, terrain, surface_water, population )
+    AllResults (people, planets, films, species, vehicles, starships)
     ) where
 
 import Data.Aeson ( eitherDecode, FromJSON, ToJSON )
 import qualified Data.ByteString.Lazy.Char8 as L8
 import GHC.Generics
 
-data Planet = Planet {
-            name :: String,
-            rotation_period :: String,
-            orbital_period :: String,
-            diameter :: String,
-            climate :: String,
-            gravity :: String,
-            terrain :: String,
-            surface_water :: String,
-            population ::  String
+data AllResults = AllResults {
+            people :: String,
+            planets :: String,
+            films :: String,
+            species :: String,
+            vehicles :: String,
+            starships :: String
         } deriving (Show, Generic)
 
-instance FromJSON Planet
-instance ToJSON Planet
-
-data Results = Results {
-            -- count :: Int,
-            -- next :: String,
-            -- previous :: Maybe String,
-            results :: [Planet]
-        } deriving (Show, Generic)
-
-instance FromJSON Results
-instance ToJSON Results
+instance FromJSON AllResults
+instance ToJSON AllResults
     
-parse :: L8.ByteString -> Either String Results
-parse json = eitherDecode json :: Either String Results
+parse :: L8.ByteString -> Either String AllResults
+parse json = eitherDecode json :: Either String AllResults
