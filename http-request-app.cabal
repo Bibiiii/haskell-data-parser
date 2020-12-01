@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2d9f19c03cbacc8faddc3ba4124dec55ad76dde4211cbd16d0981c45c5e2f7dc
+-- hash: e7dbb634930048962f76c7a6980dcd2c31efe8b6e59d07b4e8776944af9d86f4
 
 name:           http-request-app
 version:        0.1.0.0
@@ -31,8 +31,10 @@ library
       HTTP
       Lib
       Parse
+      ParseFilms
       ParsePeople
       ParsePlanets
+      ParseSpecies
       ProcessJson
   other-modules:
       Paths_http_request_app
