@@ -19,6 +19,7 @@ import ParsePlanets
 import ParsePeople
 import ParseSpecies
 import ParseFilms
+import Data.Char
 
 -- Create table for planets
 initialiseDBPlanets :: IO Connection
@@ -26,11 +27,12 @@ initialiseDBPlanets =
     do
         conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
         run conn "CREATE TABLE IF NOT EXISTS planets (\
-            \name VARCHAR(40) PRIMARY KEY, \
+            \name VARCHAR(40), \
             \climate VARCHAR(40), \
             \diameter INT, \
             \population BIGINT, \
-            \terrain VARCHAR(40) \
+            \terrain VARCHAR(40), \
+            \planet_id SERIAL PRIMARY KEY \
             \)\
             \" []
         commit conn
@@ -42,13 +44,12 @@ initialiseDBPeople =
     do
         conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
         run conn "CREATE TABLE IF NOT EXISTS people (\
-            \name VARCHAR(40) PRIMARY KEY, \
+            \name VARCHAR(40), \
             \gender VARCHAR(40), \
-            \homeworld VARCHAR(40) REFERENCES planets (name), \
-            \species VARCHAR(40) REFERENCES species (name), \
+            \homeworld INT REFERENCES planets (planet_id), \
             \height VARCHAR(40), \
             \mass VARCHAR(40), \
-            \films VARCHAR(40) REFERENCES films (episode_ID)\
+            \person_id SERIAL PRIMARY KEY \
             \)\
             \" []
         commit conn
@@ -63,7 +64,7 @@ initialiseDBSpecies =
             \name VARCHAR(40) PRIMARY KEY, \
             \classification VARCHAR(40), \
             \language VARCHAR(40), \
-            \home_world VARCHAR(40) REFERENCES planets (name)\
+            \homeworld INT REFERENCES planets (planet_id)\
             \)\
             \" []
         commit conn
@@ -93,6 +94,11 @@ convertUnkToNothing :: String -> Maybe String
 convertUnkToNothing "unknown" = Nothing
 convertUnkToNothing s = Just s
 
+-- get the homeworld ID from the url
+extractHomeworld :: String -> [Char]
+extractHomeworld [] = ['0']
+extractHomeworld url = [x | x <- url, isDigit x]
+
 -- transform planet values to SQL
 planetToSqlValues :: Planet -> [SqlValue]
 planetToSqlValues planet = [
@@ -117,16 +123,13 @@ personToSqlValues :: Person -> [SqlValue]
 personToSqlValues person = [
         toSql $ ParsePeople.name person,
         toSql $ convertUnkToNothing $ gender person,
-        toSql $ convertUnkToNothing $ homeworld person,
-        toSql $ convertUnkToNothing $ species person,
+        toSql $ extractHomeworld $ ParsePeople.homeworld person,
         toSql $ convertUnkToNothing $ height person,
-        toSql $ convertUnkToNothing $ mass person,
-        toSql $ convertUnkToNothing $ films person
+        toSql $ convertUnkToNothing $ mass person
     ]
 
-
 prepareInsertPeopleSmt :: Connection -> IO Statement
-prepareInsertPeopleSmt conn = prepare conn "INSERT INTO people VALUES (?,?,?,?,?,?,?)"
+prepareInsertPeopleSmt conn = prepare conn "INSERT INTO people VALUES (?,?,?,?,?)"
 
 savePeople :: [Person] -> Connection -> IO ()
 savePeople people conn = do
@@ -140,7 +143,7 @@ speciesToSqlValues species = [
         toSql $ ParseSpecies.name species,
         toSql $ convertUnkToNothing $ classification species,
         toSql $ convertUnkToNothing $ language species,
-        toSql $ convertUnkToNothing $ home_world species
+        toSql $ convertUnkToNothing $ ParseSpecies.homeworld species
     ]
 
 prepareInsertSpeciesSmt :: Connection -> IO Statement

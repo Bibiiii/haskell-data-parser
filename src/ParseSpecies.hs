@@ -3,7 +3,7 @@
 module ParseSpecies
     ( parseSpecies,
       SpeciesResults ( results, next ),
-      Species ( name, classification, language, home_world )
+      Species ( name, classification, language, homeworld )
     ) where
 
 import Data.Aeson ( eitherDecode, FromJSON, ToJSON )
@@ -16,7 +16,7 @@ data Species = Species {
             name :: String,
             classification :: String,
             language :: String,
-            home_world ::  String
+            homeworld ::  String
         } deriving (Show, Generic)
 
 instance FromJSON Species
