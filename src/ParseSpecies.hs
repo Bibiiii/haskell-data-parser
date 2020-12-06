@@ -10,13 +10,11 @@ import Data.Aeson ( eitherDecode, FromJSON, ToJSON )
 import qualified Data.ByteString.Lazy.Char8 as L8
 import GHC.Generics
 
-type URL = String
-
 data Species = Species {
             name :: String,
             classification :: String,
             language :: String,
-            homeworld ::  String
+            homeworld ::  Maybe String
         } deriving (Show, Generic)
 
 instance FromJSON Species

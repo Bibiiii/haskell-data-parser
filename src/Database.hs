@@ -61,10 +61,11 @@ initialiseDBSpecies =
     do
         conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
         run conn "CREATE TABLE IF NOT EXISTS species (\
-            \name VARCHAR(40) PRIMARY KEY, \
+            \name VARCHAR(40), \
             \classification VARCHAR(40), \
             \language VARCHAR(40), \
-            \homeworld INT REFERENCES planets (planet_id)\
+            \homeworld INT REFERENCES planets (planet_id),\
+            \species_id SERIAL PRIMARY KEY \
             \)\
             \" []
         commit conn
@@ -76,28 +77,29 @@ initialiseDBFilms =
     do
         conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
         run conn "CREATE TABLE IF NOT EXISTS films (\
-            \episode_ID VARCHAR(40) PRIMARY KEY, \
-            \title VARCHAR(40), \
+            \title VARCHAR(90), \
+            \episode_id VARCHAR(40), \
+            \opening_crawl TEXT, \
             \director VARCHAR(40), \
-            \producer VARCHAR(40), \
-            \species_names VARCHAR(40) REFERENCES species (name),\
-            \characters VARCHAR(40) REFERENCES people (name), \
-            \planets_names VARCHAR(40) REFERENCES planets (name), \
-            \release_dates VARCHAR(40), \
+            \producer VARCHAR(90), \
+            \release_date VARCHAR(40), \
+            \film_id SERIAL PRIMARY KEY \
             \)\
             \" []
         commit conn
         return conn
 
 -- convert any 'unknown' values to Nothing
+-- Only use if the JSON value is sometimes "unknown" - do not use for Null values
 convertUnkToNothing :: String -> Maybe String
 convertUnkToNothing "unknown" = Nothing
 convertUnkToNothing s = Just s
 
--- get the homeworld ID from the url
-extractHomeworld :: String -> [Char]
-extractHomeworld [] = ['0']
-extractHomeworld url = [x | x <- url, isDigit x]
+-- get any ID from the url
+extractID :: Maybe [Char] -> Maybe [Char]
+extractID url = do
+    case url of Nothing -> Nothing
+                Just url -> Just [x | x <- url, isDigit x]
 
 -- transform planet values to SQL
 planetToSqlValues :: Planet -> [SqlValue]
@@ -123,7 +125,7 @@ personToSqlValues :: Person -> [SqlValue]
 personToSqlValues person = [
         toSql $ ParsePeople.name person,
         toSql $ convertUnkToNothing $ gender person,
-        toSql $ extractHomeworld $ ParsePeople.homeworld person,
+        toSql $ extractID $ Just (ParsePeople.homeworld person),
         toSql $ convertUnkToNothing $ height person,
         toSql $ convertUnkToNothing $ mass person
     ]
@@ -143,7 +145,7 @@ speciesToSqlValues species = [
         toSql $ ParseSpecies.name species,
         toSql $ convertUnkToNothing $ classification species,
         toSql $ convertUnkToNothing $ language species,
-        toSql $ convertUnkToNothing $ ParseSpecies.homeworld species
+        toSql $ extractID $ ParseSpecies.homeworld species
     ]
 
 prepareInsertSpeciesSmt :: Connection -> IO Statement
@@ -159,18 +161,16 @@ saveSpecies species conn = do
 -- transform species values to SQL
 filmsToSqlValues :: Films -> [SqlValue]
 filmsToSqlValues films = [
-        toSql $ ParseFilms.episode_ID films,
-        toSql $ convertUnkToNothing $ title films,
-        toSql $ convertUnkToNothing $ director films,
-        toSql $ convertUnkToNothing $ producer films,
-        toSql $ convertUnkToNothing $ species_name films,
-        toSql $ convertUnkToNothing $ characters films,
-        toSql $ convertUnkToNothing $ planets_names films,
-        toSql $ convertUnkToNothing $ release_date films
+        toSql $ title films,
+        toSql $ episode_id films,
+        toSql $ opening_crawl films,
+        toSql $ director films,
+        toSql $ producer films,
+        toSql $ release_date films
     ]
 
 prepareInsertFilmsSmt :: Connection -> IO Statement
-prepareInsertFilmsSmt conn = prepare conn "INSERT INTO films VALUES (?,?,?,?,?,?,?,?)"
+prepareInsertFilmsSmt conn = prepare conn "INSERT INTO films VALUES (?,?,?,?,?,?)"
 
 -- save species to DB
 saveFilms :: [Films] -> Connection -> IO ()
