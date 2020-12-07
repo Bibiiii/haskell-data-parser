@@ -10,6 +10,9 @@ import Data.Aeson ( eitherDecode, FromJSON, ToJSON )
 import qualified Data.ByteString.Lazy.Char8 as L8
 import GHC.Generics
 
+{- | The "Planet" constructor defines the types of the Planet Record
+    It is a derivation of the Show and Generic instances
+-}
 data Planet = Planet {
             name :: String,
             rotation_period :: String,
@@ -22,9 +25,15 @@ data Planet = Planet {
             population ::  String
         } deriving (Show, Generic)
 
+
+-- | Makes the "Planet" type an instance of Aeson's FromJSON
 instance FromJSON Planet
+-- | Makes the "Planet" type an instance of Aeson's ToJSON
 instance ToJSON Planet
 
+{- | The "PlanetResults" constructor defines the types of the Planet API Results
+    It is a derivation of the Show and Generic instances
+-}
 data PlanetResults = PlanetResults {
             count :: Int,
             next :: Maybe String,
@@ -32,8 +41,15 @@ data PlanetResults = PlanetResults {
             results :: [Planet]
         } deriving (Show, Generic)
 
+-- | Makes the "PlanetResults" type an instance of Aeson's FromJSON
 instance FromJSON PlanetResults
+-- | Makes the "PlanetResults" type an instance of Aeson's ToJSON
 instance ToJSON PlanetResults
-    
+
+{- | "parsePlanets" decodes the JSON returned by the planet API result
+    It takes one argument: 
+    - a ByteString
+    It returns either an error String, or a Record of type PlanetResults
+-}     
 parsePlanets :: L8.ByteString -> Either String PlanetResults
 parsePlanets json = eitherDecode json :: Either String PlanetResults

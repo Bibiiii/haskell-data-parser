@@ -10,8 +10,9 @@ import Data.Aeson ( eitherDecode, FromJSON, ToJSON )
 import qualified Data.ByteString.Lazy.Char8 as L8
 import GHC.Generics
 
-type URL = String
-
+{- | The "Person" constructor defines the types of the Person Record
+    It is a derivation of the Show and Generic instances
+-}
 data Person = Person {
             name :: String,
             height :: String,
@@ -22,18 +23,23 @@ data Person = Person {
             birth_year :: String,
             gender :: String,
             homeworld ::  String,
-            films :: [URL],
-            species :: [Maybe URL],
-            vehicles :: [Maybe URL],
-            starships :: [Maybe URL],
+            films :: [String],
+            species :: [Maybe String],
+            vehicles :: [Maybe String],
+            starships :: [Maybe String],
             created :: String,
             edited :: String,
-            url :: URL
+            url :: String
         } deriving (Show, Generic)
 
+-- | Makes the "Person" type an instance of Aeson's FromJSON
 instance FromJSON Person
+-- | Makes the "Person" type an instance of Aeson's ToJSON
 instance ToJSON Person
 
+{- | The "PeopleResults" constructor defines the types of the People API Results
+    It is a derivation of the Show and Generic instances
+-}
 data PeopleResults = PeopleResults {
             count :: Int,
             next :: Maybe String,
@@ -41,8 +47,15 @@ data PeopleResults = PeopleResults {
             results :: [Person]
         } deriving (Show, Generic)
 
+-- | Makes the "PeopleResults" type an instance of Aeson's FromJSON
 instance FromJSON PeopleResults
+-- | Makes the "PeopleResults" type an instance of Aeson's ToJSON
 instance ToJSON PeopleResults
-    
+
+{- | "parsePeople" decodes the JSON returned by the people API result
+    It takes one argument: 
+    - a ByteString
+    It returns either an error String, or a Record of type PeopleResults
+-}    
 parsePeople :: L8.ByteString -> Either String PeopleResults
 parsePeople json = eitherDecode json :: Either String PeopleResults
