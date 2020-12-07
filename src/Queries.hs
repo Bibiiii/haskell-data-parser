@@ -23,13 +23,26 @@ query maxId =
         -- Run the query and store the results in r
         r <- quickQuery' conn
             -- "SELECT *, FROM people, WHERE person_id = maxId"
-            "SELECT name FROM people WHERE person_id <= ?"
+            "SELECT name, height, homeworld FROM people WHERE person_id <= ?"
             [toSql maxId]
 
-        let headResults = map head r
-        let results = map getVal headResults
+        print r
+
+        print "-----------------"
+
+        let headResults = map (!!0) r
+        let h = map (!!1) r
+        let tailResults = map last r
+
+        -- print headResults
+        -- print tailResults
+        let nameResults = map getVal headResults
+        let heightResults = map getVal h
+        let homeResults = map getVal tailResults
         
-        mapM_ putStrLn results
+        mapM_ putStrLn nameResults
+        mapM_ putStrLn heightResults
+        mapM_ putStrLn homeResults
 
 -- queryOne :: IO Connection
 -- queryOne = 
