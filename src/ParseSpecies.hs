@@ -10,6 +10,9 @@ import Data.Aeson ( eitherDecode, FromJSON, ToJSON )
 import qualified Data.ByteString.Lazy.Char8 as L8
 import GHC.Generics
 
+{- | The "Species" constructor defines the types of the Species Record
+    It is a derivation of the Show and Generic instances
+-}
 data Species = Species {
             name :: String,
             classification :: String,
@@ -17,9 +20,14 @@ data Species = Species {
             homeworld ::  Maybe String
         } deriving (Show, Generic)
 
+-- | Makes the "Species" type an instance of Aeson's FromJSON
 instance FromJSON Species
+-- | Makes the "Species" type an instance of Aeson's ToJSON
 instance ToJSON Species
 
+{- | The "SpeciesResults" constructor defines the types of the Species API Results
+    It is a derivation of the Show and Generic instances
+-}
 data SpeciesResults = SpeciesResults {
             count :: Int,
             next :: Maybe String,
@@ -27,8 +35,15 @@ data SpeciesResults = SpeciesResults {
             results :: [Species]
         } deriving (Show, Generic)
 
+-- | Makes the "SpeciesResults" type an instance of Aeson's FromJSON
 instance FromJSON SpeciesResults
+-- | Makes the "SpeciesResults" type an instance of Aeson's ToJSON
 instance ToJSON SpeciesResults
-    
+
+{- | "parseSpecies" decodes the JSON returned by the species API result
+    It takes one argument: 
+    - a ByteString
+    It returns either an error String, or a Record of type SpeciesResults
+-}  
 parseSpecies :: L8.ByteString -> Either String SpeciesResults
 parseSpecies json = eitherDecode json :: Either String SpeciesResults
