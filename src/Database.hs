@@ -25,6 +25,8 @@ import ParseFilms
            release_date) )
 import Data.Char ( isDigit )
 
+-- DATABASE SETUP
+
 {- | "initialiseDBPlanets" connects to the database and creates a Planets table
     It takes no arguments
     It returns an IO with a HDBC Connection
@@ -105,6 +107,8 @@ initialiseDBFilms =
         commit conn
         return conn
 
+-- GENERAL
+
 {- | "convertUnkToNothing" converts values of "unknown" to type Nothing
     It should only be used if the JSON value is sometimes "unknown" - do not use for Null values
     It takes one argument: 
@@ -124,6 +128,10 @@ extractID :: Maybe [Char] -> Maybe [Char]
 extractID url = do
     case url of Nothing -> Nothing
                 Just url -> Just [x | x <- url, isDigit x]
+
+
+-- PLANETS
+
 
 {- | "planetToSqlValues" transforms Planet values to SQL
     It takes one argument: 
@@ -159,6 +167,10 @@ savePlanets planets conn = do
     executeMany stmt (map planetToSqlValues planets)
     commit conn
 
+
+--  PEOPLE
+
+
 {- | "personToSqlValues" transforms Person values to SQL
     It takes one argument: 
     - a Record of type Person
@@ -193,6 +205,10 @@ savePeople people conn = do
     executeMany stmt (map personToSqlValues people)
     commit conn
 
+
+-- SPECIES
+
+
 {- | "speciesToSqlValues" transforms Species values to SQL
     It takes one argument: 
     - a Record of type Species
@@ -225,6 +241,10 @@ saveSpecies species conn = do
     stmt <- prepareInsertSpeciesSmt conn
     executeMany stmt (map speciesToSqlValues species)
     commit conn
+
+
+-- FILMS
+
 
 {- | "filmToSqlValues" transforms Film values to SQL
     It takes one argument: 
