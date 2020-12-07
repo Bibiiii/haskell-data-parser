@@ -7,6 +7,8 @@ import HTTP(download)
 import qualified Data.ByteString.Lazy.Char8 as L8
 import ParsePlanets
 import ParsePeople
+import ParseFilms
+import ParseSpecies
 import Database
 import Parse
 
@@ -27,6 +29,25 @@ savePeopleJson res = do
             savePeople (ParsePeople.results res) conn
             processJson a "people"
         Nothing -> savePeople (ParsePeople.results res) conn
+
+saveFilmsJson :: FilmResults -> IO ()
+saveFilmsJson res = do
+    conn <- initialiseDBFilms
+    case ParseFilms.next res of
+        Just a -> do
+            saveFilms (ParseFilms.results res) conn
+            processJson a "films"
+        Nothing -> saveFilms (ParseFilms.results res) conn
+
+
+saveSpeciesJson :: SpeciesResults -> IO ()
+saveSpeciesJson res = do
+    conn <- initialiseDBSpecies
+    case ParseSpecies.next res of
+        Just a -> do
+            saveSpecies (ParseSpecies.results res) conn
+            processJson a "species"
+        Nothing -> saveSpecies (ParseSpecies.results res) conn
                 
 -- saveJson f res str = do
 --     conn <- initialiseDB
@@ -51,8 +72,10 @@ parseDirectories json = do
             Left err -> do
                 print err
             Right res -> do
-                processJson (planets res) "planets"
+                processJson (Parse.planets res) "planets"
                 processJson (people res) "people"
+                processJson (Parse.species res) "species"
+                processJson (Parse.films res) "films"
 
 
 processJson :: String -> String -> IO ()
@@ -69,4 +92,9 @@ processJson url dir = do
         "people" -> do
             print "Parsing people"
             catchErr parsePeople json savePeopleJson
-        
+        "species" -> do
+            print "Parsing species"
+            catchErr parseSpecies json saveSpeciesJson
+        "films" -> do
+            print "Parsing films"
+            catchErr parseFilms json saveFilmsJson
