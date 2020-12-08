@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DeriveGeneric #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- | Module which helps parse JSON results for the type Species</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">ParseSpecies</span><span>
+</span><span id="line-5"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParseSpecies.html#parseSpecies"><span class="hs-identifier">parseSpecies</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>      </span><span class="annot"><a href="ParseSpecies.html#SpeciesResults"><span class="hs-identifier">SpeciesResults</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParseSpecies.html#results"><span class="hs-identifier">results</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseSpecies.html#next"><span class="hs-identifier">next</span></a></span><span> </span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>      </span><span class="annot"><a href="ParseSpecies.html#Species"><span class="hs-identifier">Species</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParseSpecies.html#name"><span class="hs-identifier">name</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseSpecies.html#classification"><span class="hs-identifier">classification</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseSpecies.html#language"><span class="hs-identifier">language</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseSpecies.html#homeworld"><span class="hs-identifier">homeworld</span></a></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">eitherDecode</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">FromJSON</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ToJSON</span></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy.Char8</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L8</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- | The Species constructor defines the types of the Species Record</span><span>
+</span><span id="line-15"></span><span class="hs-comment">--   It is a derivation of the Show and Generic instances</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span id="local-6989586621679170644"><span id="local-6989586621679170645"></span></span><span class="hs-keyword">data</span><span> </span><span id="Species"><span class="annot"><a href="ParseSpecies.html#Species"><span class="hs-identifier hs-var">Species</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Species"><span class="annot"><a href="ParseSpecies.html#Species"><span class="hs-identifier hs-var">Species</span></a></span></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-18"></span><span>            </span><span id="name"><span class="annot"><span class="annottext">Species -&gt; String
+</span><a href="ParseSpecies.html#name"><span class="hs-identifier hs-var hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>            </span><span id="classification"><span class="annot"><span class="annottext">Species -&gt; String
+</span><a href="ParseSpecies.html#classification"><span class="hs-identifier hs-var hs-var">classification</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>            </span><span id="language"><span class="annot"><span class="annottext">Species -&gt; String
+</span><a href="ParseSpecies.html#language"><span class="hs-identifier hs-var hs-var">language</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>            </span><span id="homeworld"><span class="annot"><span class="annottext">Species -&gt; Maybe String
+</span><a href="ParseSpecies.html#homeworld"><span class="hs-identifier hs-var hs-var">homeworld</span></a></span></span><span> </span><span class="hs-glyph">::</span><span>  </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-22"></span><span>        </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170637"><span id="local-6989586621679170639"><span id="local-6989586621679170641"><span class="annot"><span class="annottext">Int -&gt; Species -&gt; ShowS
+[Species] -&gt; ShowS
+Species -&gt; String
+(Int -&gt; Species -&gt; ShowS)
+-&gt; (Species -&gt; String) -&gt; ([Species] -&gt; ShowS) -&gt; Show Species
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [Species] -&gt; ShowS
+$cshowList :: [Species] -&gt; ShowS
+show :: Species -&gt; String
+$cshow :: Species -&gt; String
+showsPrec :: Int -&gt; Species -&gt; ShowS
+$cshowsPrec :: Int -&gt; Species -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. Species -&gt; Rep Species x)
+-&gt; (forall x. Rep Species x -&gt; Species) -&gt; Generic Species
+forall x. Rep Species x -&gt; Species
+forall x. Species -&gt; Rep Species x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep Species x -&gt; Species
+$cfrom :: forall x. Species -&gt; Rep Species x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- | Makes the Species type an instance of Aeson's FromJSON</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170629"><span id="local-6989586621679170631"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="ParseSpecies.html#Species"><span class="hs-identifier hs-type">Species</span></a></span></span></span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- | Makes the Species type an instance of Aeson's ToJSON</span><span>
+</span><span id="line-27"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170620"><span id="local-6989586621679170622"><span id="local-6989586621679170624"><span id="local-6989586621679170626"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="ParseSpecies.html#Species"><span class="hs-identifier hs-type">Species</span></a></span></span></span></span></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-comment">-- | The &quot;SpeciesResults&quot; constructor defines the types of the Species API Results</span><span>
+</span><span id="line-30"></span><span class="hs-comment">--   It is a derivation of the Show and Generic instances</span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span id="local-6989586621679170617"><span id="local-6989586621679170618"></span></span><span class="hs-keyword">data</span><span> </span><span id="SpeciesResults"><span class="annot"><a href="ParseSpecies.html#SpeciesResults"><span class="hs-identifier hs-var">SpeciesResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="SpeciesResults"><span class="annot"><a href="ParseSpecies.html#SpeciesResults"><span class="hs-identifier hs-var">SpeciesResults</span></a></span></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-33"></span><span>            </span><span id="count"><span class="annot"><span class="annottext">SpeciesResults -&gt; Int
+</span><a href="ParseSpecies.html#count"><span class="hs-identifier hs-var hs-var">count</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span>
+</span><span id="line-34"></span><span>            </span><span id="next"><span class="annot"><span class="annottext">SpeciesResults -&gt; Maybe String
+</span><a href="ParseSpecies.html#next"><span class="hs-identifier hs-var hs-var">next</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-35"></span><span>            </span><span id="previous"><span class="annot"><span class="annottext">SpeciesResults -&gt; Maybe String
+</span><a href="ParseSpecies.html#previous"><span class="hs-identifier hs-var hs-var">previous</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-36"></span><span>            </span><span id="results"><span class="annot"><span class="annottext">SpeciesResults -&gt; [Species]
+</span><a href="ParseSpecies.html#results"><span class="hs-identifier hs-var hs-var">results</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="ParseSpecies.html#Species"><span class="hs-identifier hs-type">Species</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-37"></span><span>        </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170608"><span id="local-6989586621679170610"><span id="local-6989586621679170612"><span class="annot"><span class="annottext">Int -&gt; SpeciesResults -&gt; ShowS
+[SpeciesResults] -&gt; ShowS
+SpeciesResults -&gt; String
+(Int -&gt; SpeciesResults -&gt; ShowS)
+-&gt; (SpeciesResults -&gt; String)
+-&gt; ([SpeciesResults] -&gt; ShowS)
+-&gt; Show SpeciesResults
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [SpeciesResults] -&gt; ShowS
+$cshowList :: [SpeciesResults] -&gt; ShowS
+show :: SpeciesResults -&gt; String
+$cshow :: SpeciesResults -&gt; String
+showsPrec :: Int -&gt; SpeciesResults -&gt; ShowS
+$cshowsPrec :: Int -&gt; SpeciesResults -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. SpeciesResults -&gt; Rep SpeciesResults x)
+-&gt; (forall x. Rep SpeciesResults x -&gt; SpeciesResults)
+-&gt; Generic SpeciesResults
+forall x. Rep SpeciesResults x -&gt; SpeciesResults
+forall x. SpeciesResults -&gt; Rep SpeciesResults x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep SpeciesResults x -&gt; SpeciesResults
+$cfrom :: forall x. SpeciesResults -&gt; Rep SpeciesResults x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span class="hs-comment">-- | Makes the SpeciesResults type an instance of Aeson's FromJSON</span><span>
+</span><span id="line-40"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170602"><span id="local-6989586621679170604"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="ParseSpecies.html#SpeciesResults"><span class="hs-identifier hs-type">SpeciesResults</span></a></span></span></span><span>
+</span><span id="line-41"></span><span class="hs-comment">-- | Makes the SpeciesResults type an instance of Aeson's ToJSON</span><span>
+</span><span id="line-42"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170594"><span id="local-6989586621679170596"><span id="local-6989586621679170598"><span id="local-6989586621679170600"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="ParseSpecies.html#SpeciesResults"><span class="hs-identifier hs-type">SpeciesResults</span></a></span></span></span></span></span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="hs-comment">-- | Decodes the JSON returned by the Species API result</span><span>
+</span><span id="line-45"></span><span class="annot"><a href="ParseSpecies.html#parseSpecies"><span class="hs-identifier hs-type">parseSpecies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">L8.ByteString</span></span><span> </span><span class="hs-comment">-- ^ It takes one argument a ByteString</span><span>
+</span><span id="line-46"></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="ParseSpecies.html#SpeciesResults"><span class="hs-identifier hs-type">SpeciesResults</span></a></span><span> </span><span class="hs-comment">-- ^ returns either an error String, or a Record of type SpeciesResults </span><span>
+</span><span id="line-47"></span><span id="parseSpecies"><span class="annot"><span class="annottext">parseSpecies :: ByteString -&gt; Either String SpeciesResults
+</span><a href="ParseSpecies.html#parseSpecies"><span class="hs-identifier hs-var hs-var">parseSpecies</span></a></span></span><span> </span><span id="local-6989586621679170593"><span class="annot"><span class="annottext">json :: ByteString
+</span><a href="#local-6989586621679170593"><span class="hs-identifier hs-var">json</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String SpeciesResults
+forall a. FromJSON a =&gt; ByteString -&gt; Either String a
+</span><span class="hs-identifier hs-var">eitherDecode</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679170593"><span class="hs-identifier hs-var">json</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="ParseSpecies.html#SpeciesResults"><span class="hs-identifier hs-type">SpeciesResults</span></a></span></pre></body></html>

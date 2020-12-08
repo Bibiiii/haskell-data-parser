@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DeriveGeneric #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- | Module which helps parse JSON results for the type Planets</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">ParsePlanets</span><span>
+</span><span id="line-5"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParsePlanets.html#parsePlanets"><span class="hs-identifier">parsePlanets</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>      </span><span class="annot"><a href="ParsePlanets.html#PlanetResults"><span class="hs-identifier">PlanetResults</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParsePlanets.html#results"><span class="hs-identifier">results</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePlanets.html#next"><span class="hs-identifier">next</span></a></span><span> </span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>      </span><span class="annot"><a href="ParsePlanets.html#Planet"><span class="hs-identifier">Planet</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParsePlanets.html#name"><span class="hs-identifier">name</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePlanets.html#rotation_period"><span class="hs-identifier">rotation_period</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePlanets.html#orbital_period"><span class="hs-identifier">orbital_period</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePlanets.html#diameter"><span class="hs-identifier">diameter</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePlanets.html#climate"><span class="hs-identifier">climate</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePlanets.html#gravity"><span class="hs-identifier">gravity</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePlanets.html#terrain"><span class="hs-identifier">terrain</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePlanets.html#surface_water"><span class="hs-identifier">surface_water</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePlanets.html#population"><span class="hs-identifier">population</span></a></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">eitherDecode</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">FromJSON</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ToJSON</span></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy.Char8</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L8</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- | The Planet constructor defines the types of the Planet Record</span><span>
+</span><span id="line-15"></span><span class="hs-comment">--   It is a derivation of the Show and Generic instances</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span id="local-6989586621679170557"><span id="local-6989586621679170558"></span></span><span class="hs-keyword">data</span><span> </span><span id="Planet"><span class="annot"><a href="ParsePlanets.html#Planet"><span class="hs-identifier hs-var">Planet</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Planet"><span class="annot"><a href="ParsePlanets.html#Planet"><span class="hs-identifier hs-var">Planet</span></a></span></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-18"></span><span>            </span><span id="name"><span class="annot"><span class="annottext">Planet -&gt; String
+</span><a href="ParsePlanets.html#name"><span class="hs-identifier hs-var hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>            </span><span id="rotation_period"><span class="annot"><span class="annottext">Planet -&gt; String
+</span><a href="ParsePlanets.html#rotation_period"><span class="hs-identifier hs-var hs-var">rotation_period</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>            </span><span id="orbital_period"><span class="annot"><span class="annottext">Planet -&gt; String
+</span><a href="ParsePlanets.html#orbital_period"><span class="hs-identifier hs-var hs-var">orbital_period</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>            </span><span id="diameter"><span class="annot"><span class="annottext">Planet -&gt; String
+</span><a href="ParsePlanets.html#diameter"><span class="hs-identifier hs-var hs-var">diameter</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>            </span><span id="climate"><span class="annot"><span class="annottext">Planet -&gt; String
+</span><a href="ParsePlanets.html#climate"><span class="hs-identifier hs-var hs-var">climate</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>            </span><span id="gravity"><span class="annot"><span class="annottext">Planet -&gt; String
+</span><a href="ParsePlanets.html#gravity"><span class="hs-identifier hs-var hs-var">gravity</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>            </span><span id="terrain"><span class="annot"><span class="annottext">Planet -&gt; String
+</span><a href="ParsePlanets.html#terrain"><span class="hs-identifier hs-var hs-var">terrain</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>            </span><span id="surface_water"><span class="annot"><span class="annottext">Planet -&gt; String
+</span><a href="ParsePlanets.html#surface_water"><span class="hs-identifier hs-var hs-var">surface_water</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>            </span><span id="population"><span class="annot"><span class="annottext">Planet -&gt; String
+</span><a href="ParsePlanets.html#population"><span class="hs-identifier hs-var hs-var">population</span></a></span></span><span> </span><span class="hs-glyph">::</span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-27"></span><span>        </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170550"><span id="local-6989586621679170552"><span id="local-6989586621679170554"><span class="annot"><span class="annottext">Int -&gt; Planet -&gt; ShowS
+[Planet] -&gt; ShowS
+Planet -&gt; String
+(Int -&gt; Planet -&gt; ShowS)
+-&gt; (Planet -&gt; String) -&gt; ([Planet] -&gt; ShowS) -&gt; Show Planet
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [Planet] -&gt; ShowS
+$cshowList :: [Planet] -&gt; ShowS
+show :: Planet -&gt; String
+$cshow :: Planet -&gt; String
+showsPrec :: Int -&gt; Planet -&gt; ShowS
+$cshowsPrec :: Int -&gt; Planet -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. Planet -&gt; Rep Planet x)
+-&gt; (forall x. Rep Planet x -&gt; Planet) -&gt; Generic Planet
+forall x. Rep Planet x -&gt; Planet
+forall x. Planet -&gt; Rep Planet x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep Planet x -&gt; Planet
+$cfrom :: forall x. Planet -&gt; Rep Planet x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- | Makes the Planet type an instance of Aeson's FromJSON</span><span>
+</span><span id="line-31"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170542"><span id="local-6989586621679170544"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="ParsePlanets.html#Planet"><span class="hs-identifier hs-type">Planet</span></a></span></span></span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- | Makes the Planet type an instance of Aeson's ToJSON</span><span>
+</span><span id="line-33"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170533"><span id="local-6989586621679170535"><span id="local-6989586621679170537"><span id="local-6989586621679170539"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="ParsePlanets.html#Planet"><span class="hs-identifier hs-type">Planet</span></a></span></span></span></span></span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- | The PlanetResults constructor defines the types of the Planet API Results</span><span>
+</span><span id="line-36"></span><span class="hs-comment">--   It is a derivation of the Show and Generic instances</span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span id="local-6989586621679170530"><span id="local-6989586621679170531"></span></span><span class="hs-keyword">data</span><span> </span><span id="PlanetResults"><span class="annot"><a href="ParsePlanets.html#PlanetResults"><span class="hs-identifier hs-var">PlanetResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="PlanetResults"><span class="annot"><a href="ParsePlanets.html#PlanetResults"><span class="hs-identifier hs-var">PlanetResults</span></a></span></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-39"></span><span>            </span><span id="count"><span class="annot"><span class="annottext">PlanetResults -&gt; Int
+</span><a href="ParsePlanets.html#count"><span class="hs-identifier hs-var hs-var">count</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span>
+</span><span id="line-40"></span><span>            </span><span id="next"><span class="annot"><span class="annottext">PlanetResults -&gt; Maybe String
+</span><a href="ParsePlanets.html#next"><span class="hs-identifier hs-var hs-var">next</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-41"></span><span>            </span><span id="previous"><span class="annot"><span class="annottext">PlanetResults -&gt; Maybe String
+</span><a href="ParsePlanets.html#previous"><span class="hs-identifier hs-var hs-var">previous</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-42"></span><span>            </span><span id="results"><span class="annot"><span class="annottext">PlanetResults -&gt; [Planet]
+</span><a href="ParsePlanets.html#results"><span class="hs-identifier hs-var hs-var">results</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="ParsePlanets.html#Planet"><span class="hs-identifier hs-type">Planet</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-43"></span><span>        </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170521"><span id="local-6989586621679170523"><span id="local-6989586621679170525"><span class="annot"><span class="annottext">Int -&gt; PlanetResults -&gt; ShowS
+[PlanetResults] -&gt; ShowS
+PlanetResults -&gt; String
+(Int -&gt; PlanetResults -&gt; ShowS)
+-&gt; (PlanetResults -&gt; String)
+-&gt; ([PlanetResults] -&gt; ShowS)
+-&gt; Show PlanetResults
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [PlanetResults] -&gt; ShowS
+$cshowList :: [PlanetResults] -&gt; ShowS
+show :: PlanetResults -&gt; String
+$cshow :: PlanetResults -&gt; String
+showsPrec :: Int -&gt; PlanetResults -&gt; ShowS
+$cshowsPrec :: Int -&gt; PlanetResults -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. PlanetResults -&gt; Rep PlanetResults x)
+-&gt; (forall x. Rep PlanetResults x -&gt; PlanetResults)
+-&gt; Generic PlanetResults
+forall x. Rep PlanetResults x -&gt; PlanetResults
+forall x. PlanetResults -&gt; Rep PlanetResults x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep PlanetResults x -&gt; PlanetResults
+$cfrom :: forall x. PlanetResults -&gt; Rep PlanetResults x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span><span class="hs-comment">-- | Makes the PlanetResults type an instance of Aeson's FromJSON</span><span>
+</span><span id="line-46"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170515"><span id="local-6989586621679170517"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="ParsePlanets.html#PlanetResults"><span class="hs-identifier hs-type">PlanetResults</span></a></span></span></span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- | Makes the PlanetResults type an instance of Aeson's ToJSON</span><span>
+</span><span id="line-48"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170507"><span id="local-6989586621679170509"><span id="local-6989586621679170511"><span id="local-6989586621679170513"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="ParsePlanets.html#PlanetResults"><span class="hs-identifier hs-type">PlanetResults</span></a></span></span></span></span></span><span>
+</span><span id="line-49"></span><span>
+</span><span id="line-50"></span><span class="hs-comment">-- | Decodes the JSON returned by the Planets API result</span><span>
+</span><span id="line-51"></span><span class="annot"><a href="ParsePlanets.html#parsePlanets"><span class="hs-identifier hs-type">parsePlanets</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">L8.ByteString</span></span><span> </span><span class="hs-comment">-- ^ It takes one argument a ByteString</span><span>
+</span><span id="line-52"></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="ParsePlanets.html#PlanetResults"><span class="hs-identifier hs-type">PlanetResults</span></a></span><span> </span><span class="hs-comment">-- ^ returns either an error String, or a Record of type PlanetResults </span><span>
+</span><span id="line-53"></span><span id="parsePlanets"><span class="annot"><span class="annottext">parsePlanets :: ByteString -&gt; Either String PlanetResults
+</span><a href="ParsePlanets.html#parsePlanets"><span class="hs-identifier hs-var hs-var">parsePlanets</span></a></span></span><span> </span><span id="local-6989586621679170506"><span class="annot"><span class="annottext">json :: ByteString
+</span><a href="#local-6989586621679170506"><span class="hs-identifier hs-var">json</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String PlanetResults
+forall a. FromJSON a =&gt; ByteString -&gt; Either String a
+</span><span class="hs-identifier hs-var">eitherDecode</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679170506"><span class="hs-identifier hs-var">json</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="ParsePlanets.html#PlanetResults"><span class="hs-identifier hs-type">PlanetResults</span></a></span></pre></body></html>
