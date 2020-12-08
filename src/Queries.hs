@@ -1,7 +1,8 @@
 module Queries
     (   dropAllTables,
-        queryJoin,
-        queryDelete
+        queryHomeworlds,
+        queryDelete,
+        queryPlanetWithHighestGround
     ) where
 
 import Database.HDBC
@@ -55,12 +56,12 @@ dropAllTables =
         -- And disconnect from the database
         disconnect conn
 
-queryJoin :: IO ()
-queryJoin =
+queryHomeworlds :: IO ()
+queryHomeworlds =
     do
         conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
         r <- quickQuery' conn
-             "SELECT people.name, planets.name FROM people INNER JOIN planets ON people.homeworld=planets.planet_id WHERE people.person_id <=10"
+             "SELECT people.name, planets.name FROM people INNER JOIN planets ON people.homeworld=planets.planet_id WHERE people.person_id <= 10"
              []
         let b = mapM formatStrings r
         mapM_ putStrLn $ combine (head b) (last b)
@@ -74,10 +75,27 @@ queryDelete =
 
         -- Run the query
         quickQuery' conn
-            "DELETE FROM people WHERE person_id = 1"
+            "DELETE FROM people WHERE homeworld = 1"
             []
 
         commit conn
+
+        -- And disconnect from the database
+        disconnect conn
+
+
+queryPlanetWithHighestGround :: IO ()
+queryPlanetWithHighestGround = 
+    do -- Connect to the database
+        conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
+
+        -- Run the query and store the results in r
+        r <- quickQuery' conn
+            "SELECT name, diameter FROM planets WHERE diameter = (SELECT MAX(diameter) FROM planets)"
+            []
+
+        let b = mapM formatStrings r
+        mapM_ putStrLn $ combine (head b) (last b)
 
         -- And disconnect from the database
         disconnect conn
