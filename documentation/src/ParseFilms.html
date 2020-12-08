@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DeriveGeneric #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- | Module which helps parse JSON results for the type Film</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">ParseFilms</span><span>
+</span><span id="line-5"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParseFilms.html#parseFilms"><span class="hs-identifier">parseFilms</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>      </span><span class="annot"><a href="ParseFilms.html#FilmResults"><span class="hs-identifier">FilmResults</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParseFilms.html#results"><span class="hs-identifier">results</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#next"><span class="hs-identifier">next</span></a></span><span> </span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>      </span><span class="annot"><a href="ParseFilms.html#Film"><span class="hs-identifier">Film</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParseFilms.html#episode_id"><span class="hs-identifier">episode_id</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#title"><span class="hs-identifier">title</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#director"><span class="hs-identifier">director</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#producer"><span class="hs-identifier">producer</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#species"><span class="hs-identifier">species</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#characters"><span class="hs-identifier">characters</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#planets"><span class="hs-identifier">planets</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#release_date"><span class="hs-identifier">release_date</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#starships"><span class="hs-identifier">starships</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#vehicles"><span class="hs-identifier">vehicles</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParseFilms.html#opening_crawl"><span class="hs-identifier">opening_crawl</span></a></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">eitherDecode</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">FromJSON</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ToJSON</span></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy.Char8</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L8</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- | The Film constructor defines the types of the Film Record</span><span>
+</span><span id="line-15"></span><span class="hs-comment">--</span><span>
+</span><span id="line-16"></span><span class="hs-comment">--    It is a derivation of the Show and Generic instances</span><span>
+</span><span id="line-17"></span><span id="local-6989586621679170374"><span id="local-6989586621679170375"></span></span><span class="hs-keyword">data</span><span> </span><span id="Film"><span class="annot"><a href="ParseFilms.html#Film"><span class="hs-identifier hs-var">Film</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Film"><span class="annot"><a href="ParseFilms.html#Film"><span class="hs-identifier hs-var">Film</span></a></span></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-18"></span><span>            </span><span id="episode_id"><span class="annot"><span class="annottext">Film -&gt; Int
+</span><a href="ParseFilms.html#episode_id"><span class="hs-identifier hs-var hs-var">episode_id</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>            </span><span id="title"><span class="annot"><span class="annottext">Film -&gt; String
+</span><a href="ParseFilms.html#title"><span class="hs-identifier hs-var hs-var">title</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>            </span><span id="opening_crawl"><span class="annot"><span class="annottext">Film -&gt; String
+</span><a href="ParseFilms.html#opening_crawl"><span class="hs-identifier hs-var hs-var">opening_crawl</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>            </span><span id="director"><span class="annot"><span class="annottext">Film -&gt; String
+</span><a href="ParseFilms.html#director"><span class="hs-identifier hs-var hs-var">director</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>            </span><span id="producer"><span class="annot"><span class="annottext">Film -&gt; String
+</span><a href="ParseFilms.html#producer"><span class="hs-identifier hs-var hs-var">producer</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>            </span><span id="release_date"><span class="annot"><span class="annottext">Film -&gt; String
+</span><a href="ParseFilms.html#release_date"><span class="hs-identifier hs-var hs-var">release_date</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>            </span><span id="characters"><span class="annot"><span class="annottext">Film -&gt; [String]
+</span><a href="ParseFilms.html#characters"><span class="hs-identifier hs-var hs-var">characters</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>            </span><span id="planets"><span class="annot"><span class="annottext">Film -&gt; [String]
+</span><a href="ParseFilms.html#planets"><span class="hs-identifier hs-var hs-var">planets</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>            </span><span id="starships"><span class="annot"><span class="annottext">Film -&gt; [String]
+</span><a href="ParseFilms.html#starships"><span class="hs-identifier hs-var hs-var">starships</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-27"></span><span>            </span><span id="vehicles"><span class="annot"><span class="annottext">Film -&gt; [String]
+</span><a href="ParseFilms.html#vehicles"><span class="hs-identifier hs-var hs-var">vehicles</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>            </span><span id="species"><span class="annot"><span class="annottext">Film -&gt; [String]
+</span><a href="ParseFilms.html#species"><span class="hs-identifier hs-var hs-var">species</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span>
+</span><span id="line-29"></span><span>        </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170367"><span id="local-6989586621679170369"><span id="local-6989586621679170371"><span class="annot"><span class="annottext">Int -&gt; Film -&gt; ShowS
+[Film] -&gt; ShowS
+Film -&gt; String
+(Int -&gt; Film -&gt; ShowS)
+-&gt; (Film -&gt; String) -&gt; ([Film] -&gt; ShowS) -&gt; Show Film
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [Film] -&gt; ShowS
+$cshowList :: [Film] -&gt; ShowS
+show :: Film -&gt; String
+$cshow :: Film -&gt; String
+showsPrec :: Int -&gt; Film -&gt; ShowS
+$cshowsPrec :: Int -&gt; Film -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. Film -&gt; Rep Film x)
+-&gt; (forall x. Rep Film x -&gt; Film) -&gt; Generic Film
+forall x. Rep Film x -&gt; Film
+forall x. Film -&gt; Rep Film x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep Film x -&gt; Film
+$cfrom :: forall x. Film -&gt; Rep Film x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- | Makes the Film type an instance of Aeson's FromJSON</span><span>
+</span><span id="line-32"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170359"><span id="local-6989586621679170361"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="ParseFilms.html#Film"><span class="hs-identifier hs-type">Film</span></a></span></span></span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- | Makes the Film type an instance of Aeson's ToJSON</span><span>
+</span><span id="line-34"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170350"><span id="local-6989586621679170352"><span id="local-6989586621679170354"><span id="local-6989586621679170356"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="ParseFilms.html#Film"><span class="hs-identifier hs-type">Film</span></a></span></span></span></span></span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="hs-comment">-- | The FilmResults constructor defines the types of the Film API Results</span><span>
+</span><span id="line-37"></span><span class="hs-comment">--   It is a derivation of the Show and Generic instances</span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span id="local-6989586621679170347"><span id="local-6989586621679170348"></span></span><span class="hs-keyword">data</span><span> </span><span id="FilmResults"><span class="annot"><a href="ParseFilms.html#FilmResults"><span class="hs-identifier hs-var">FilmResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="FilmResults"><span class="annot"><a href="ParseFilms.html#FilmResults"><span class="hs-identifier hs-var">FilmResults</span></a></span></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-40"></span><span>            </span><span id="count"><span class="annot"><span class="annottext">FilmResults -&gt; Int
+</span><a href="ParseFilms.html#count"><span class="hs-identifier hs-var hs-var">count</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span>
+</span><span id="line-41"></span><span>            </span><span id="next"><span class="annot"><span class="annottext">FilmResults -&gt; Maybe String
+</span><a href="ParseFilms.html#next"><span class="hs-identifier hs-var hs-var">next</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-42"></span><span>            </span><span id="previous"><span class="annot"><span class="annottext">FilmResults -&gt; Maybe String
+</span><a href="ParseFilms.html#previous"><span class="hs-identifier hs-var hs-var">previous</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-43"></span><span>            </span><span id="results"><span class="annot"><span class="annottext">FilmResults -&gt; [Film]
+</span><a href="ParseFilms.html#results"><span class="hs-identifier hs-var hs-var">results</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="ParseFilms.html#Film"><span class="hs-identifier hs-type">Film</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-44"></span><span>        </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170338"><span id="local-6989586621679170340"><span id="local-6989586621679170342"><span class="annot"><span class="annottext">Int -&gt; FilmResults -&gt; ShowS
+[FilmResults] -&gt; ShowS
+FilmResults -&gt; String
+(Int -&gt; FilmResults -&gt; ShowS)
+-&gt; (FilmResults -&gt; String)
+-&gt; ([FilmResults] -&gt; ShowS)
+-&gt; Show FilmResults
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [FilmResults] -&gt; ShowS
+$cshowList :: [FilmResults] -&gt; ShowS
+show :: FilmResults -&gt; String
+$cshow :: FilmResults -&gt; String
+showsPrec :: Int -&gt; FilmResults -&gt; ShowS
+$cshowsPrec :: Int -&gt; FilmResults -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. FilmResults -&gt; Rep FilmResults x)
+-&gt; (forall x. Rep FilmResults x -&gt; FilmResults)
+-&gt; Generic FilmResults
+forall x. Rep FilmResults x -&gt; FilmResults
+forall x. FilmResults -&gt; Rep FilmResults x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep FilmResults x -&gt; FilmResults
+$cfrom :: forall x. FilmResults -&gt; Rep FilmResults x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- | Makes the FilmResults type an instance of Aeson's FromJSON</span><span>
+</span><span id="line-47"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170332"><span id="local-6989586621679170334"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="ParseFilms.html#FilmResults"><span class="hs-identifier hs-type">FilmResults</span></a></span></span></span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- | Makes the FilmResults type an instance of Aeson's ToJSON</span><span>
+</span><span id="line-49"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170324"><span id="local-6989586621679170326"><span id="local-6989586621679170328"><span id="local-6989586621679170330"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="ParseFilms.html#FilmResults"><span class="hs-identifier hs-type">FilmResults</span></a></span></span></span></span></span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span class="hs-comment">-- | Decodes the JSON returned by the films API result</span><span>
+</span><span id="line-52"></span><span class="annot"><a href="ParseFilms.html#parseFilms"><span class="hs-identifier hs-type">parseFilms</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">L8.ByteString</span></span><span> </span><span class="hs-comment">-- ^ It takes one argument a ByteString</span><span>
+</span><span id="line-53"></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="ParseFilms.html#FilmResults"><span class="hs-identifier hs-type">FilmResults</span></a></span><span> </span><span class="hs-comment">-- ^ returns either an error String, or a Record of type FilmResults</span><span>
+</span><span id="line-54"></span><span id="parseFilms"><span class="annot"><span class="annottext">parseFilms :: ByteString -&gt; Either String FilmResults
+</span><a href="ParseFilms.html#parseFilms"><span class="hs-identifier hs-var hs-var">parseFilms</span></a></span></span><span> </span><span id="local-6989586621679170323"><span class="annot"><span class="annottext">json :: ByteString
+</span><a href="#local-6989586621679170323"><span class="hs-identifier hs-var">json</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String FilmResults
+forall a. FromJSON a =&gt; ByteString -&gt; Either String a
+</span><span class="hs-identifier hs-var">eitherDecode</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679170323"><span class="hs-identifier hs-var">json</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="ParseFilms.html#FilmResults"><span class="hs-identifier hs-type">FilmResults</span></a></span></pre></body></html>

@@ -1,9 +1,17 @@
+-- | Main module
 module Main where
 
-import ProcessJson
+import ProcessJson ( processJson )
 import Queries
+    (   dropAllTables,
+        queryDeletePeople,
+        queryInsertToFilms,
+        queryFilms,
+        queryHomeworlds,
+        queryPlanetWithHighestGround )
 
-main :: IO ()
+-- | Main function, all other functions are called here
+main :: IO () -- ^ Performs an IO action
 main = do
     print "Dropping all tables....."
     dropAllTables
@@ -20,7 +28,7 @@ main = do
     print "---------------------------------------------"
 
     print "Performing delete query - Delete all people from Tatooine....."
-    queryDelete
+    queryDeletePeople
     print "Done with delete query!"
     print "---------------------------------------------"
 
@@ -30,7 +38,7 @@ main = do
     print "---------------------------------------------"
 
     print "Adding new film..."
-    queryInsert "Haskell Strikes Back" "10" filmTagline "Paulo Oliva & Edmund Robinson" "Armaan, Cat, Luca and Luca" "2020-12-10"
+    queryInsertToFilms "Haskell Strikes Back" "10" filmTagline "Paulo Oliva & Edmund Robinson" "Armaan, Cat, Luca and Luca" "2020-12-10"
     print "Returning all films..."
     queryFilms
     print "---------------------------------------------"
@@ -42,6 +50,7 @@ main = do
 
     print "All queries complete, have a nice day :)"
 
+-- | Takes long paragraph and stores it as a list of characters/string
 filmTagline :: [Char]
 filmTagline = "Beset on all sides by QMUL deadlines,\n\
             \the student forces stationed on Earth are crumbling under the relentless assault.\n \

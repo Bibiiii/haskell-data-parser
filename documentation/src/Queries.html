@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- | Module which contains the queries</span><span>
+</span><span id="line-2"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Queries</span><span>
+</span><span id="line-3"></span><span>    </span><span class="hs-special">(</span><span>   </span><span class="annot"><a href="Queries.html#dropAllTables"><span class="hs-identifier">dropAllTables</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-4"></span><span>        </span><span class="annot"><a href="Queries.html#queryDeletePeople"><span class="hs-identifier">queryDeletePeople</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-5"></span><span>        </span><span class="annot"><a href="Queries.html#queryInsertToFilms"><span class="hs-identifier">queryInsertToFilms</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>        </span><span class="annot"><a href="Queries.html#queryFilms"><span class="hs-identifier">queryFilms</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>        </span><span class="annot"><a href="Queries.html#queryHomeworlds"><span class="hs-identifier">queryHomeworlds</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-8"></span><span>        </span><span class="annot"><a href="Queries.html#queryPlanetWithHighestGround"><span class="hs-identifier">queryPlanetWithHighestGround</span></a></span><span>
+</span><span id="line-9"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Database.HDBC</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Database.HDBC.PostgreSQL</span></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- | Gets the output as a string  </span><span>
+</span><span id="line-15"></span><span class="annot"><a href="Queries.html#getVal"><span class="hs-identifier hs-type">getVal</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">SqlValue</span></span><span> </span><span class="hs-comment">-- ^ Takes one argument, an SqlValue returned from a query</span><span>
+</span><span id="line-16"></span><span>          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-comment">-- ^ Returns a string</span><span>
+</span><span id="line-17"></span><span id="getVal"><span class="annot"><span class="annottext">getVal :: SqlValue -&gt; String
+</span><a href="Queries.html#getVal"><span class="hs-identifier hs-var hs-var">getVal</span></a></span></span><span> </span><span id="local-6989586621679170920"><span class="annot"><span class="annottext">stringOutput :: SqlValue
+</span><a href="#local-6989586621679170920"><span class="hs-identifier hs-var">stringOutput</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SqlValue -&gt; String
+forall a. Convertible SqlValue a =&gt; SqlValue -&gt; a
+</span><span class="hs-identifier hs-var">fromSql</span></span><span> </span><span class="annot"><span class="annottext">SqlValue
+</span><a href="#local-6989586621679170920"><span class="hs-identifier hs-var">stringOutput</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-comment">-- | Converts a list of SqlValues into a list of strings for printing</span><span>
+</span><span id="line-20"></span><span class="annot"><a href="Queries.html#formatStrings"><span class="hs-identifier hs-type">formatStrings</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">SqlValue</span></span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Takes one argument, a list SqlValues returned from a query</span><span>
+</span><span id="line-21"></span><span>                 </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Returns a list of strings</span><span>
+</span><span id="line-22"></span><span id="formatStrings"><span class="annot"><span class="annottext">formatStrings :: [SqlValue] -&gt; [String]
+</span><a href="Queries.html#formatStrings"><span class="hs-identifier hs-var hs-var">formatStrings</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(SqlValue -&gt; String) -&gt; [SqlValue] -&gt; [String]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><span class="hs-identifier hs-var">map</span></span><span> </span><span class="annot"><span class="annottext">SqlValue -&gt; String
+</span><a href="Queries.html#getVal"><span class="hs-identifier hs-var">getVal</span></a></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- | Combines two lists of strings into a single list of strings, separated by a &quot;: &quot;</span><span>
+</span><span id="line-25"></span><span class="annot"><a href="Queries.html#combine"><span class="hs-identifier hs-type">combine</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span class="hs-special">]</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span class="hs-special">]</span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Takes two arguments, both lists of strings</span><span>
+</span><span id="line-26"></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span class="hs-special">]</span><span class="hs-special">]</span><span> </span><span class="hs-comment">-- ^ Returns a single list of strings</span><span>
+</span><span id="line-27"></span><span id="combine"><span class="annot"><span class="annottext">combine :: [String] -&gt; [String] -&gt; [String]
+</span><a href="Queries.html#combine"><span class="hs-identifier hs-var hs-var">combine</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-28"></span><span class="annot"><a href="Queries.html#combine"><span class="hs-identifier hs-var">combine</span></a></span><span> </span><span class="hs-identifier">_</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-29"></span><span class="annot"><a href="Queries.html#combine"><span class="hs-identifier hs-var">combine</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170916"><span class="annot"><span class="annottext">x :: String
+</span><a href="#local-6989586621679170916"><span class="hs-identifier hs-var">x</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679170915"><span class="annot"><span class="annottext">xs :: [String]
+</span><a href="#local-6989586621679170915"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170914"><span class="annot"><span class="annottext">y :: String
+</span><a href="#local-6989586621679170914"><span class="hs-identifier hs-var">y</span></a></span></span><span class="annot"><span class="hs-glyph hs-type">:</span></span><span id="local-6989586621679170913"><span class="annot"><span class="annottext">ys :: [String]
+</span><a href="#local-6989586621679170913"><span class="hs-identifier hs-var">ys</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679170916"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="hs-string">&quot;: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><span class="hs-operator hs-var">++</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679170914"><span class="hs-identifier hs-var">y</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
+forall a. a -&gt; [a] -&gt; [a]
+</span><span class="hs-glyph hs-var">:</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String]
+</span><a href="Queries.html#combine"><span class="hs-identifier hs-var">combine</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679170915"><span class="hs-identifier hs-var">xs</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621679170913"><span class="hs-identifier hs-var">ys</span></a></span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- | Drops all tables from the database, ensures tables are always clean when re-running code</span><span>
+</span><span id="line-32"></span><span class="annot"><a href="Queries.html#dropAllTables"><span class="hs-identifier hs-type">dropAllTables</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- ^ Performs an IO action</span><span>
+</span><span id="line-33"></span><span id="dropAllTables"><span class="annot"><span class="annottext">dropAllTables :: IO ()
+</span><a href="Queries.html#dropAllTables"><span class="hs-identifier hs-var hs-var">dropAllTables</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span>
+</span><span id="line-34"></span><span>    </span><span class="hs-keyword">do</span><span>
+</span><span id="line-35"></span><span>        </span><span id="local-6989586621679170912"><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170912"><span class="hs-identifier hs-var">conn</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Connection
+</span><span class="hs-identifier hs-var">connectPostgreSQL</span></span><span> </span><span class="annot"><span class="hs-string">&quot;host=localhost dbname=postgres user=postgres password=admin&quot;</span></span><span>
+</span><span id="line-36"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+forall conn.
+IConnection conn =&gt;
+conn -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+</span><span class="hs-identifier hs-var">quickQuery'</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170912"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-37"></span><span>             </span><span class="annot"><span class="hs-string">&quot;DROP TABLE IF EXISTS planets CASCADE&quot;</span></span><span>
+</span><span id="line-38"></span><span>             </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+forall conn.
+IConnection conn =&gt;
+conn -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+</span><span class="hs-identifier hs-var">quickQuery'</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170912"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-41"></span><span>             </span><span class="annot"><span class="hs-string">&quot;DROP TABLE IF EXISTS people CASCADE&quot;</span></span><span>
+</span><span id="line-42"></span><span>             </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+forall conn.
+IConnection conn =&gt;
+conn -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+</span><span class="hs-identifier hs-var">quickQuery'</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170912"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-45"></span><span>             </span><span class="annot"><span class="hs-string">&quot;DROP TABLE IF EXISTS species CASCADE&quot;</span></span><span>
+</span><span id="line-46"></span><span>             </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-47"></span><span>        </span><span>
+</span><span id="line-48"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+forall conn.
+IConnection conn =&gt;
+conn -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+</span><span class="hs-identifier hs-var">quickQuery'</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170912"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-49"></span><span>             </span><span class="annot"><span class="hs-string">&quot;DROP TABLE IF EXISTS films CASCADE&quot;</span></span><span>
+</span><span id="line-50"></span><span>             </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-51"></span><span>
+</span><span id="line-52"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; IO ()
+forall conn. IConnection conn =&gt; conn -&gt; IO ()
+</span><span class="hs-identifier hs-var">commit</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170912"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-53"></span><span>
+</span><span id="line-54"></span><span>        </span><span class="hs-comment">-- And disconnect from the database</span><span>
+</span><span id="line-55"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; IO ()
+forall conn. IConnection conn =&gt; conn -&gt; IO ()
+</span><span class="hs-identifier hs-var">disconnect</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170912"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-56"></span><span>
+</span><span id="line-57"></span><span class="hs-comment">-- | Query to find people and their homeworlds</span><span>
+</span><span id="line-58"></span><span class="annot"><a href="Queries.html#queryHomeworlds"><span class="hs-identifier hs-type">queryHomeworlds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- ^ Performs an IO action</span><span>
+</span><span id="line-59"></span><span id="queryHomeworlds"><span class="annot"><span class="annottext">queryHomeworlds :: IO ()
+</span><a href="Queries.html#queryHomeworlds"><span class="hs-identifier hs-var hs-var">queryHomeworlds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-60"></span><span>    </span><span class="hs-keyword">do</span><span>
+</span><span id="line-61"></span><span>        </span><span id="local-6989586621679170907"><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170907"><span class="hs-identifier hs-var">conn</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Connection
+</span><span class="hs-identifier hs-var">connectPostgreSQL</span></span><span> </span><span class="annot"><span class="hs-string">&quot;host=localhost dbname=postgres user=postgres password=admin&quot;</span></span><span>
+</span><span id="line-62"></span><span>        </span><span id="local-6989586621679170906"><span class="annot"><span class="annottext">[[SqlValue]]
+</span><a href="#local-6989586621679170906"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Connection -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+forall conn.
+IConnection conn =&gt;
+conn -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+</span><span class="hs-identifier hs-var">quickQuery'</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170907"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-63"></span><span>             </span><span class="annot"><span class="hs-string">&quot;SELECT people.name, planets.name FROM people INNER JOIN planets ON people.homeworld=planets.planet_id WHERE people.person_id &lt;= 10&quot;</span></span><span>
+</span><span id="line-64"></span><span>             </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-65"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679170905"><span class="annot"><span class="annottext">b :: [[String]]
+</span><a href="#local-6989586621679170905"><span class="hs-identifier hs-var hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([SqlValue] -&gt; [String]) -&gt; [[SqlValue]] -&gt; [[String]]
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Traversable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m (t b)
+</span><span class="hs-identifier hs-var">mapM</span></span><span> </span><span class="annot"><span class="annottext">[SqlValue] -&gt; [String]
+</span><a href="Queries.html#formatStrings"><span class="hs-identifier hs-var">formatStrings</span></a></span><span> </span><span class="annot"><span class="annottext">[[SqlValue]]
+</span><a href="#local-6989586621679170906"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-66"></span><span>        </span><span class="annot"><span class="annottext">(String -&gt; IO ()) -&gt; [String] -&gt; IO ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m ()
+</span><span class="hs-identifier hs-var">mapM_</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">([String] -&gt; IO ()) -&gt; [String] -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String]
+</span><a href="Queries.html#combine"><span class="hs-identifier hs-var">combine</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[[String]] -&gt; [String]
+forall a. [a] -&gt; a
+</span><span class="hs-identifier hs-var">head</span></span><span> </span><span class="annot"><span class="annottext">[[String]]
+</span><a href="#local-6989586621679170905"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[[String]] -&gt; [String]
+forall a. [a] -&gt; a
+</span><span class="hs-identifier hs-var">last</span></span><span> </span><span class="annot"><span class="annottext">[[String]]
+</span><a href="#local-6989586621679170905"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-67"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; IO ()
+forall conn. IConnection conn =&gt; conn -&gt; IO ()
+</span><span class="hs-identifier hs-var">disconnect</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170907"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span class="hs-comment">-- | Query to delete all people from a given planet</span><span>
+</span><span id="line-70"></span><span class="annot"><a href="Queries.html#queryDeletePeople"><span class="hs-identifier hs-type">queryDeletePeople</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- ^ Performs an IO action</span><span>
+</span><span id="line-71"></span><span id="queryDeletePeople"><span class="annot"><span class="annottext">queryDeletePeople :: IO ()
+</span><a href="Queries.html#queryDeletePeople"><span class="hs-identifier hs-var hs-var">queryDeletePeople</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span>
+</span><span id="line-72"></span><span>    </span><span class="hs-keyword">do</span><span> </span><span class="hs-comment">-- Connect to the database</span><span>
+</span><span id="line-73"></span><span>        </span><span id="local-6989586621679170899"><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170899"><span class="hs-identifier hs-var">conn</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Connection
+</span><span class="hs-identifier hs-var">connectPostgreSQL</span></span><span> </span><span class="annot"><span class="hs-string">&quot;host=localhost dbname=postgres user=postgres password=admin&quot;</span></span><span>
+</span><span id="line-74"></span><span>
+</span><span id="line-75"></span><span>        </span><span class="hs-comment">-- Run the query</span><span>
+</span><span id="line-76"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+forall conn.
+IConnection conn =&gt;
+conn -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+</span><span class="hs-identifier hs-var">quickQuery'</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170899"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-77"></span><span>            </span><span class="annot"><span class="hs-string">&quot;DELETE FROM people WHERE homeworld = 1&quot;</span></span><span>
+</span><span id="line-78"></span><span>            </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-79"></span><span>
+</span><span id="line-80"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; IO ()
+forall conn. IConnection conn =&gt; conn -&gt; IO ()
+</span><span class="hs-identifier hs-var">commit</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170899"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-81"></span><span>
+</span><span id="line-82"></span><span>        </span><span class="hs-comment">-- And disconnect from the database</span><span>
+</span><span id="line-83"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; IO ()
+forall conn. IConnection conn =&gt; conn -&gt; IO ()
+</span><span class="hs-identifier hs-var">disconnect</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170899"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-84"></span><span>
+</span><span id="line-85"></span><span class="hs-comment">-- | Query to insert a new row into the films table</span><span>
+</span><span id="line-86"></span><span class="annot"><a href="Queries.html#queryInsertToFilms"><span class="hs-identifier hs-type">queryInsertToFilms</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="hs-comment">-- ^ Takes 6 strings as inputs</span><span>
+</span><span id="line-87"></span><span>                      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- ^ Performs an IO action</span><span>
+</span><span id="line-88"></span><span id="queryInsertToFilms"><span class="annot"><span class="annottext">queryInsertToFilms :: String -&gt; String -&gt; String -&gt; String -&gt; String -&gt; String -&gt; IO ()
+</span><a href="Queries.html#queryInsertToFilms"><span class="hs-identifier hs-var hs-var">queryInsertToFilms</span></a></span></span><span> </span><span id="local-6989586621679170898"><span class="annot"><span class="annottext">filmName :: String
+</span><a href="#local-6989586621679170898"><span class="hs-identifier hs-var">filmName</span></a></span></span><span> </span><span id="local-6989586621679170897"><span class="annot"><span class="annottext">epId :: String
+</span><a href="#local-6989586621679170897"><span class="hs-identifier hs-var">epId</span></a></span></span><span> </span><span id="local-6989586621679170896"><span class="annot"><span class="annottext">crawl :: String
+</span><a href="#local-6989586621679170896"><span class="hs-identifier hs-var">crawl</span></a></span></span><span> </span><span id="local-6989586621679170895"><span class="annot"><span class="annottext">director :: String
+</span><a href="#local-6989586621679170895"><span class="hs-identifier hs-var">director</span></a></span></span><span> </span><span id="local-6989586621679170894"><span class="annot"><span class="annottext">producer :: String
+</span><a href="#local-6989586621679170894"><span class="hs-identifier hs-var">producer</span></a></span></span><span> </span><span id="local-6989586621679170893"><span class="annot"><span class="annottext">release_date :: String
+</span><a href="#local-6989586621679170893"><span class="hs-identifier hs-var">release_date</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span>
+</span><span id="line-89"></span><span>    </span><span class="hs-keyword">do</span><span> </span><span class="hs-comment">-- Connect to the database</span><span>
+</span><span id="line-90"></span><span>        </span><span id="local-6989586621679170892"><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170892"><span class="hs-identifier hs-var">conn</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Connection
+</span><span class="hs-identifier hs-var">connectPostgreSQL</span></span><span> </span><span class="annot"><span class="hs-string">&quot;host=localhost dbname=postgres user=postgres password=admin&quot;</span></span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span>        </span><span class="hs-comment">-- Run the query</span><span>
+</span><span id="line-93"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+forall conn.
+IConnection conn =&gt;
+conn -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+</span><span class="hs-identifier hs-var">quickQuery'</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170892"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-94"></span><span>            </span><span class="annot"><span class="hs-string">&quot;INSERT INTO films VALUES (?,?,?,?,?,?)&quot;</span></span><span>
+</span><span id="line-95"></span><span>            </span><span class="hs-special">[</span><span class="annot"><span class="annottext">String -&gt; SqlValue
+forall a. Convertible a SqlValue =&gt; a -&gt; SqlValue
+</span><span class="hs-identifier hs-var">toSql</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679170898"><span class="hs-identifier hs-var">filmName</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; SqlValue
+forall a. Convertible a SqlValue =&gt; a -&gt; SqlValue
+</span><span class="hs-identifier hs-var">toSql</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679170897"><span class="hs-identifier hs-var">epId</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; SqlValue
+forall a. Convertible a SqlValue =&gt; a -&gt; SqlValue
+</span><span class="hs-identifier hs-var">toSql</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679170896"><span class="hs-identifier hs-var">crawl</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">String -&gt; SqlValue
+forall a. Convertible a SqlValue =&gt; a -&gt; SqlValue
+</span><span class="hs-identifier hs-var">toSql</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679170895"><span class="hs-identifier hs-var">director</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">String -&gt; SqlValue
+forall a. Convertible a SqlValue =&gt; a -&gt; SqlValue
+</span><span class="hs-identifier hs-var">toSql</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679170894"><span class="hs-identifier hs-var">producer</span></a></span><span class="hs-special">,</span><span class="annot"><span class="annottext">String -&gt; SqlValue
+forall a. Convertible a SqlValue =&gt; a -&gt; SqlValue
+</span><span class="hs-identifier hs-var">toSql</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621679170893"><span class="hs-identifier hs-var">release_date</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-96"></span><span>
+</span><span id="line-97"></span><span>        </span><span class="hs-comment">-- Commit the changes</span><span>
+</span><span id="line-98"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; IO ()
+forall conn. IConnection conn =&gt; conn -&gt; IO ()
+</span><span class="hs-identifier hs-var">commit</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170892"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-99"></span><span>
+</span><span id="line-100"></span><span>        </span><span class="hs-comment">-- And disconnect from the database</span><span>
+</span><span id="line-101"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; IO ()
+forall conn. IConnection conn =&gt; conn -&gt; IO ()
+</span><span class="hs-identifier hs-var">disconnect</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170892"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-102"></span><span>
+</span><span id="line-103"></span><span class="hs-comment">-- | Query to retrive title and producer from the films table</span><span>
+</span><span id="line-104"></span><span class="annot"><a href="Queries.html#queryFilms"><span class="hs-identifier hs-type">queryFilms</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- ^ Performs an IO action</span><span>
+</span><span id="line-105"></span><span id="queryFilms"><span class="annot"><span class="annottext">queryFilms :: IO ()
+</span><a href="Queries.html#queryFilms"><span class="hs-identifier hs-var hs-var">queryFilms</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span>
+</span><span id="line-106"></span><span>    </span><span class="hs-keyword">do</span><span> </span><span class="hs-comment">-- Connect to the database</span><span>
+</span><span id="line-107"></span><span>        </span><span id="local-6989586621679170890"><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170890"><span class="hs-identifier hs-var">conn</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Connection
+</span><span class="hs-identifier hs-var">connectPostgreSQL</span></span><span> </span><span class="annot"><span class="hs-string">&quot;host=localhost dbname=postgres user=postgres password=admin&quot;</span></span><span>
+</span><span id="line-108"></span><span>
+</span><span id="line-109"></span><span>        </span><span class="hs-comment">-- Run the query and store the results in r</span><span>
+</span><span id="line-110"></span><span>        </span><span id="local-6989586621679170889"><span class="annot"><span class="annottext">[[SqlValue]]
+</span><a href="#local-6989586621679170889"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Connection -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+forall conn.
+IConnection conn =&gt;
+conn -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+</span><span class="hs-identifier hs-var">quickQuery'</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170890"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-111"></span><span>            </span><span class="annot"><span class="hs-string">&quot;SELECT title, producer FROM films&quot;</span></span><span>
+</span><span id="line-112"></span><span>            </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-113"></span><span>
+</span><span id="line-114"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679170888"><span class="annot"><span class="annottext">b :: [[String]]
+</span><a href="#local-6989586621679170888"><span class="hs-identifier hs-var hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([SqlValue] -&gt; [String]) -&gt; [[SqlValue]] -&gt; [[String]]
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Traversable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m (t b)
+</span><span class="hs-identifier hs-var">mapM</span></span><span> </span><span class="annot"><span class="annottext">[SqlValue] -&gt; [String]
+</span><a href="Queries.html#formatStrings"><span class="hs-identifier hs-var">formatStrings</span></a></span><span> </span><span class="annot"><span class="annottext">[[SqlValue]]
+</span><a href="#local-6989586621679170889"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-115"></span><span>        </span><span class="annot"><span class="annottext">(String -&gt; IO ()) -&gt; [String] -&gt; IO ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m ()
+</span><span class="hs-identifier hs-var">mapM_</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">([String] -&gt; IO ()) -&gt; [String] -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String]
+</span><a href="Queries.html#combine"><span class="hs-identifier hs-var">combine</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[[String]] -&gt; [String]
+forall a. [a] -&gt; a
+</span><span class="hs-identifier hs-var">head</span></span><span> </span><span class="annot"><span class="annottext">[[String]]
+</span><a href="#local-6989586621679170888"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[[String]] -&gt; [String]
+forall a. [a] -&gt; a
+</span><span class="hs-identifier hs-var">last</span></span><span> </span><span class="annot"><span class="annottext">[[String]]
+</span><a href="#local-6989586621679170888"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-116"></span><span>
+</span><span id="line-117"></span><span>        </span><span class="hs-comment">-- And disconnect from the database</span><span>
+</span><span id="line-118"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; IO ()
+forall conn. IConnection conn =&gt; conn -&gt; IO ()
+</span><span class="hs-identifier hs-var">disconnect</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170890"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-119"></span><span>
+</span><span id="line-120"></span><span class="hs-comment">-- | Query to find and return the planet with the highest ground</span><span>
+</span><span id="line-121"></span><span class="annot"><a href="Queries.html#queryPlanetWithHighestGround"><span class="hs-identifier hs-type">queryPlanetWithHighestGround</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">IO</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="hs-comment">-- ^ Performs an IO action</span><span>
+</span><span id="line-122"></span><span id="queryPlanetWithHighestGround"><span class="annot"><span class="annottext">queryPlanetWithHighestGround :: IO ()
+</span><a href="Queries.html#queryPlanetWithHighestGround"><span class="hs-identifier hs-var hs-var">queryPlanetWithHighestGround</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span>
+</span><span id="line-123"></span><span>    </span><span class="hs-keyword">do</span><span> </span><span class="hs-comment">-- Connect to the database</span><span>
+</span><span id="line-124"></span><span>        </span><span id="local-6989586621679170887"><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170887"><span class="hs-identifier hs-var">conn</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO Connection
+</span><span class="hs-identifier hs-var">connectPostgreSQL</span></span><span> </span><span class="annot"><span class="hs-string">&quot;host=localhost dbname=postgres user=postgres password=admin&quot;</span></span><span>
+</span><span id="line-125"></span><span>
+</span><span id="line-126"></span><span>        </span><span class="hs-comment">-- Run the query and store the results in r</span><span>
+</span><span id="line-127"></span><span>        </span><span id="local-6989586621679170886"><span class="annot"><span class="annottext">[[SqlValue]]
+</span><a href="#local-6989586621679170886"><span class="hs-identifier hs-var">r</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Connection -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+forall conn.
+IConnection conn =&gt;
+conn -&gt; String -&gt; [SqlValue] -&gt; IO [[SqlValue]]
+</span><span class="hs-identifier hs-var">quickQuery'</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170887"><span class="hs-identifier hs-var">conn</span></a></span><span>
+</span><span id="line-128"></span><span>            </span><span class="annot"><span class="hs-string">&quot;SELECT name, diameter FROM planets WHERE diameter = (SELECT MAX(diameter) FROM planets)&quot;</span></span><span>
+</span><span id="line-129"></span><span>            </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-130"></span><span>
+</span><span id="line-131"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621679170885"><span class="annot"><span class="annottext">b :: [[String]]
+</span><a href="#local-6989586621679170885"><span class="hs-identifier hs-var hs-var">b</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([SqlValue] -&gt; [String]) -&gt; [[SqlValue]] -&gt; [[String]]
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Traversable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m (t b)
+</span><span class="hs-identifier hs-var">mapM</span></span><span> </span><span class="annot"><span class="annottext">[SqlValue] -&gt; [String]
+</span><a href="Queries.html#formatStrings"><span class="hs-identifier hs-var">formatStrings</span></a></span><span> </span><span class="annot"><span class="annottext">[[SqlValue]]
+</span><a href="#local-6989586621679170886"><span class="hs-identifier hs-var">r</span></a></span><span>
+</span><span id="line-132"></span><span>        </span><span class="annot"><span class="annottext">(String -&gt; IO ()) -&gt; [String] -&gt; IO ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m ()
+</span><span class="hs-identifier hs-var">mapM_</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><span class="hs-identifier hs-var">putStrLn</span></span><span> </span><span class="annot"><span class="annottext">([String] -&gt; IO ()) -&gt; [String] -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String] -&gt; [String]
+</span><a href="Queries.html#combine"><span class="hs-identifier hs-var">combine</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[[String]] -&gt; [String]
+forall a. [a] -&gt; a
+</span><span class="hs-identifier hs-var">head</span></span><span> </span><span class="annot"><span class="annottext">[[String]]
+</span><a href="#local-6989586621679170885"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[[String]] -&gt; [String]
+forall a. [a] -&gt; a
+</span><span class="hs-identifier hs-var">last</span></span><span> </span><span class="annot"><span class="annottext">[[String]]
+</span><a href="#local-6989586621679170885"><span class="hs-identifier hs-var">b</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-133"></span><span>
+</span><span id="line-134"></span><span>        </span><span class="hs-comment">-- And disconnect from the database</span><span>
+</span><span id="line-135"></span><span>        </span><span class="annot"><span class="annottext">Connection -&gt; IO ()
+forall conn. IConnection conn =&gt; conn -&gt; IO ()
+</span><span class="hs-identifier hs-var">disconnect</span></span><span> </span><span class="annot"><span class="annottext">Connection
+</span><a href="#local-6989586621679170887"><span class="hs-identifier hs-var">conn</span></a></span></pre></body></html>

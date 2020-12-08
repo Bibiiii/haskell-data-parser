@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DeriveGeneric #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- | Module which helps parse JSON results for the type People</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">ParsePeople</span><span>
+</span><span id="line-5"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParsePeople.html#parsePeople"><span class="hs-identifier">parsePeople</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-6"></span><span>      </span><span class="annot"><a href="ParsePeople.html#PeopleResults"><span class="hs-identifier">PeopleResults</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParsePeople.html#results"><span class="hs-identifier">results</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#next"><span class="hs-identifier">next</span></a></span><span> </span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>      </span><span class="annot"><a href="ParsePeople.html#Person"><span class="hs-identifier">Person</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="ParsePeople.html#name"><span class="hs-identifier">name</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#height"><span class="hs-identifier">height</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#mass"><span class="hs-identifier">mass</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#hair_color"><span class="hs-identifier">hair_color</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#skin_color"><span class="hs-identifier">skin_color</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#eye_color"><span class="hs-identifier">eye_color</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#birth_year"><span class="hs-identifier">birth_year</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#gender"><span class="hs-identifier">gender</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#homeworld"><span class="hs-identifier">homeworld</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#films"><span class="hs-identifier">films</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#species"><span class="hs-identifier">species</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#vehicles"><span class="hs-identifier">vehicles</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="ParsePeople.html#starships"><span class="hs-identifier">starships</span></a></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">eitherDecode</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">FromJSON</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ToJSON</span></span><span> </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy.Char8</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L8</span></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- | The Person constructor defines the types of the Person Record</span><span>
+</span><span id="line-15"></span><span class="hs-comment">--   It is a derivation of the Show and Generic instances</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span id="local-6989586621679170466"><span id="local-6989586621679170467"></span></span><span class="hs-keyword">data</span><span> </span><span id="Person"><span class="annot"><a href="ParsePeople.html#Person"><span class="hs-identifier hs-var">Person</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="Person"><span class="annot"><a href="ParsePeople.html#Person"><span class="hs-identifier hs-var">Person</span></a></span></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-18"></span><span>            </span><span id="name"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#name"><span class="hs-identifier hs-var hs-var">name</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-19"></span><span>            </span><span id="height"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#height"><span class="hs-identifier hs-var hs-var">height</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-20"></span><span>            </span><span id="mass"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#mass"><span class="hs-identifier hs-var hs-var">mass</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-21"></span><span>            </span><span id="hair_color"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#hair_color"><span class="hs-identifier hs-var hs-var">hair_color</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-22"></span><span>            </span><span id="skin_color"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#skin_color"><span class="hs-identifier hs-var hs-var">skin_color</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-23"></span><span>            </span><span id="eye_color"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#eye_color"><span class="hs-identifier hs-var hs-var">eye_color</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-24"></span><span>            </span><span id="birth_year"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#birth_year"><span class="hs-identifier hs-var hs-var">birth_year</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-25"></span><span>            </span><span id="gender"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#gender"><span class="hs-identifier hs-var hs-var">gender</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-26"></span><span>            </span><span id="homeworld"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#homeworld"><span class="hs-identifier hs-var hs-var">homeworld</span></a></span></span><span> </span><span class="hs-glyph">::</span><span>  </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-27"></span><span>            </span><span id="films"><span class="annot"><span class="annottext">Person -&gt; [String]
+</span><a href="ParsePeople.html#films"><span class="hs-identifier hs-var hs-var">films</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>            </span><span id="species"><span class="annot"><span class="annottext">Person -&gt; [String]
+</span><a href="ParsePeople.html#species"><span class="hs-identifier hs-var hs-var">species</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-29"></span><span>            </span><span id="vehicles"><span class="annot"><span class="annottext">Person -&gt; [Maybe String]
+</span><a href="ParsePeople.html#vehicles"><span class="hs-identifier hs-var hs-var">vehicles</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>            </span><span id="starships"><span class="annot"><span class="annottext">Person -&gt; [Maybe String]
+</span><a href="ParsePeople.html#starships"><span class="hs-identifier hs-var hs-var">starships</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">]</span><span class="hs-special">,</span><span>
+</span><span id="line-31"></span><span>            </span><span id="created"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#created"><span class="hs-identifier hs-var hs-var">created</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-32"></span><span>            </span><span id="edited"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#edited"><span class="hs-identifier hs-var hs-var">edited</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-33"></span><span>            </span><span id="url"><span class="annot"><span class="annottext">Person -&gt; String
+</span><a href="ParsePeople.html#url"><span class="hs-identifier hs-var hs-var">url</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span>
+</span><span id="line-34"></span><span>        </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170456"><span id="local-6989586621679170458"><span id="local-6989586621679170460"><span class="annot"><span class="annottext">Int -&gt; Person -&gt; ShowS
+[Person] -&gt; ShowS
+Person -&gt; String
+(Int -&gt; Person -&gt; ShowS)
+-&gt; (Person -&gt; String) -&gt; ([Person] -&gt; ShowS) -&gt; Show Person
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [Person] -&gt; ShowS
+$cshowList :: [Person] -&gt; ShowS
+show :: Person -&gt; String
+$cshow :: Person -&gt; String
+showsPrec :: Int -&gt; Person -&gt; ShowS
+$cshowsPrec :: Int -&gt; Person -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. Person -&gt; Rep Person x)
+-&gt; (forall x. Rep Person x -&gt; Person) -&gt; Generic Person
+forall x. Rep Person x -&gt; Person
+forall x. Person -&gt; Rep Person x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep Person x -&gt; Person
+$cfrom :: forall x. Person -&gt; Rep Person x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="hs-comment">-- | Makes the Person type an instance of Aeson's FromJSON</span><span>
+</span><span id="line-37"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170448"><span id="local-6989586621679170450"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="ParsePeople.html#Person"><span class="hs-identifier hs-type">Person</span></a></span></span></span><span>
+</span><span id="line-38"></span><span class="hs-comment">-- | Makes the Person type an instance of Aeson's ToJSON</span><span>
+</span><span id="line-39"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170439"><span id="local-6989586621679170441"><span id="local-6989586621679170443"><span id="local-6989586621679170445"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="ParsePeople.html#Person"><span class="hs-identifier hs-type">Person</span></a></span></span></span></span></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span class="hs-comment">-- | The PeopleResults constructor defines the types of the People API Results</span><span>
+</span><span id="line-42"></span><span class="hs-comment">--   It is a derivation of the Show and Generic instances</span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span id="local-6989586621679170436"><span id="local-6989586621679170437"></span></span><span class="hs-keyword">data</span><span> </span><span id="PeopleResults"><span class="annot"><a href="ParsePeople.html#PeopleResults"><span class="hs-identifier hs-var">PeopleResults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="PeopleResults"><span class="annot"><a href="ParsePeople.html#PeopleResults"><span class="hs-identifier hs-var">PeopleResults</span></a></span></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-45"></span><span>            </span><span id="count"><span class="annot"><span class="annottext">PeopleResults -&gt; Int
+</span><a href="ParsePeople.html#count"><span class="hs-identifier hs-var hs-var">count</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span class="hs-special">,</span><span>
+</span><span id="line-46"></span><span>            </span><span id="next"><span class="annot"><span class="annottext">PeopleResults -&gt; Maybe String
+</span><a href="ParsePeople.html#next"><span class="hs-identifier hs-var hs-var">next</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-47"></span><span>            </span><span id="previous"><span class="annot"><span class="annottext">PeopleResults -&gt; Maybe String
+</span><a href="ParsePeople.html#previous"><span class="hs-identifier hs-var hs-var">previous</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span class="hs-special">,</span><span>
+</span><span id="line-48"></span><span>            </span><span id="results"><span class="annot"><span class="annottext">PeopleResults -&gt; [Person]
+</span><a href="ParsePeople.html#results"><span class="hs-identifier hs-var hs-var">results</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="ParsePeople.html#Person"><span class="hs-identifier hs-type">Person</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-49"></span><span>        </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621679170427"><span id="local-6989586621679170429"><span id="local-6989586621679170431"><span class="annot"><span class="annottext">Int -&gt; PeopleResults -&gt; ShowS
+[PeopleResults] -&gt; ShowS
+PeopleResults -&gt; String
+(Int -&gt; PeopleResults -&gt; ShowS)
+-&gt; (PeopleResults -&gt; String)
+-&gt; ([PeopleResults] -&gt; ShowS)
+-&gt; Show PeopleResults
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [PeopleResults] -&gt; ShowS
+$cshowList :: [PeopleResults] -&gt; ShowS
+show :: PeopleResults -&gt; String
+$cshow :: PeopleResults -&gt; String
+showsPrec :: Int -&gt; PeopleResults -&gt; ShowS
+$cshowsPrec :: Int -&gt; PeopleResults -&gt; ShowS
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></span></span></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(forall x. PeopleResults -&gt; Rep PeopleResults x)
+-&gt; (forall x. Rep PeopleResults x -&gt; PeopleResults)
+-&gt; Generic PeopleResults
+forall x. Rep PeopleResults x -&gt; PeopleResults
+forall x. PeopleResults -&gt; Rep PeopleResults x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+$cto :: forall x. Rep PeopleResults x -&gt; PeopleResults
+$cfrom :: forall x. PeopleResults -&gt; Rep PeopleResults x
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span class="hs-comment">-- | Makes the PeopleResults type an instance of Aeson's FromJSON</span><span>
+</span><span id="line-52"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170421"><span id="local-6989586621679170423"><span class="annot"><span class="hs-identifier hs-type">FromJSON</span></span><span> </span><span class="annot"><a href="ParsePeople.html#PeopleResults"><span class="hs-identifier hs-type">PeopleResults</span></a></span></span></span><span>
+</span><span id="line-53"></span><span class="hs-comment">-- | Makes the PeopleResults type an instance of Aeson's ToJSON</span><span>
+</span><span id="line-54"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679170413"><span id="local-6989586621679170415"><span id="local-6989586621679170417"><span id="local-6989586621679170419"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><a href="ParsePeople.html#PeopleResults"><span class="hs-identifier hs-type">PeopleResults</span></a></span></span></span></span></span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span class="hs-comment">-- | Decodes the JSON returned by the people API result</span><span>
+</span><span id="line-57"></span><span class="annot"><a href="ParsePeople.html#parsePeople"><span class="hs-identifier hs-type">parsePeople</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">L8.ByteString</span></span><span> </span><span class="hs-comment">-- ^ It takes one argument a ByteString</span><span>
+</span><span id="line-58"></span><span>           </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="ParsePeople.html#PeopleResults"><span class="hs-identifier hs-type">PeopleResults</span></a></span><span> </span><span class="hs-comment">-- ^ returns either an error String, or a Record of type PeopleResults </span><span>
+</span><span id="line-59"></span><span id="parsePeople"><span class="annot"><span class="annottext">parsePeople :: ByteString -&gt; Either String PeopleResults
+</span><a href="ParsePeople.html#parsePeople"><span class="hs-identifier hs-var hs-var">parsePeople</span></a></span></span><span> </span><span id="local-6989586621679170412"><span class="annot"><span class="annottext">json :: ByteString
+</span><a href="#local-6989586621679170412"><span class="hs-identifier hs-var">json</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String PeopleResults
+forall a. FromJSON a =&gt; ByteString -&gt; Either String a
+</span><span class="hs-identifier hs-var">eitherDecode</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679170412"><span class="hs-identifier hs-var">json</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Either</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">String</span></span><span> </span><span class="annot"><a href="ParsePeople.html#PeopleResults"><span class="hs-identifier hs-type">PeopleResults</span></a></span></pre></body></html>
