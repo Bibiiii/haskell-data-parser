@@ -1,3 +1,4 @@
+-- | Module to Manage the Creation of the database and any operations performed on the database.
 module Database
     ( initialiseDBPlanets,
       initialiseDBPeople,
@@ -6,7 +7,17 @@ module Database
       savePlanets,
       savePeople,
       saveSpecies,
-      saveFilms
+      saveFilms,
+      convertUnkToNothing,
+      extractID,
+      planetToSqlValues,
+      prepareInsertPlanetSmt,
+      personToSqlValues,
+      prepareInsertPeopleSmt,
+      speciesToSqlValues,
+      prepareInsertSpeciesSmt,
+      filmToSqlValues,
+      prepareInsertFilmSmt,      
     ) where
 
 import Database.HDBC
@@ -27,10 +38,12 @@ import Data.Char ( isDigit )
 
 -- DATABASE SETUP
 
-{- | "initialiseDBPlanets" connects to the database and creates a Planets table
-    It takes no arguments
-    It returns an IO with a HDBC Connection
--}
+-- | Connects to the database and creates a Planets table
+--
+--    This function takes no arguments
+--
+--    This function returns an IO with a HDBC Connection
+
 initialiseDBPlanets :: IO Connection
 initialiseDBPlanets =
     do
@@ -47,10 +60,11 @@ initialiseDBPlanets =
         commit conn
         return conn
 
-{- | "initialiseDBPeople" connects to the database and creates a People table
-    It takes no arguments
-    It returns an IO with a HDBC Connection
--}
+-- | Connects to the database and creates a People table
+--
+--    This function takes no arguments
+--
+--    This function returns an IO with a HDBC Connection
 initialiseDBPeople :: IO Connection
 initialiseDBPeople =
     do
@@ -67,10 +81,11 @@ initialiseDBPeople =
         commit conn
         return conn
 
-{- | "initialiseDBSpecies" connects to the database and creates a Species table
-    It takes no arguments
-    It returns an IO with a HDBC Connection
--}
+-- | Connects to the database and creates a Species table
+--
+--    This function takes no arguments
+--
+--    This function returns an IO with a HDBC Connection
 initialiseDBSpecies :: IO Connection
 initialiseDBSpecies =
     do
@@ -86,10 +101,11 @@ initialiseDBSpecies =
         commit conn
         return conn
 
-{- | "initialiseDBFilms" connects to the database and creates a Film table
-    It takes no arguments
-    It returns an IO with a HDBC Connection
--}
+-- | Connects to the database and creates a Films table
+--
+--    This function takes no arguments
+--
+--    This function returns an IO with a HDBC Connection
 initialiseDBFilms :: IO Connection
 initialiseDBFilms =
     do
@@ -109,36 +125,39 @@ initialiseDBFilms =
 
 -- GENERAL
 
-{- | "convertUnkToNothing" converts values of "unknown" to type Nothing
-    It should only be used if the JSON value is sometimes "unknown" - do not use for Null values
-    It takes one argument: 
-    - The String value returned from the API
-    It returns either Nothing (if the value is "unknown"), otherwise returns the value itself
--}
-convertUnkToNothing :: String -> Maybe String
+-- |Converts values of "unknown" to type Nothing
+--
+--  It should only be used if the JSON value is sometimes "unknown" - do not use for Null values
+--
+--  It takes a single argument
+--
+convertUnkToNothing :: String -- ^  Takes the String value returned from the API
+                    -> Maybe String -- ^ Returns either Nothing (if the value is "unknown"), otherwise returns the value itself
 convertUnkToNothing "unknown" = Nothing
 convertUnkToNothing s = Just s
 
-{- | "extractID" gets the ID from any Star Wars API Url
-    It takes one argument: 
-    - a URL of type Maybe [Char]
-    It returns the ID value as type [Char] or Nothing (if Nothing is passed)
--}
-extractID :: Maybe [Char] -> Maybe [Char]
+
+-- |Gets the ID from any Star Wars API Url
+--
+--  It takes a single argument 
+--
+extractID :: Maybe [Char] -- ^ Takes a URL of type Maybe [Char]
+          -> Maybe [Char] -- ^ returns the ID value as type [Char] or Nothing (if Nothing is passed)
 extractID url = do
     case url of Nothing -> Nothing
                 Just url -> Just [x | x <- url, isDigit x]
 
 
 -- PLANETS
+    
 
+-- | Transforms Planet values to SQL
+--
+--  It takes a single argument Record of type Planet and Returns an Array of SQL Values
+--
 
-{- | "planetToSqlValues" transforms Planet values to SQL
-    It takes one argument: 
-    - a Record of type Planet
-    It returns an array of SQL Values
--}
-planetToSqlValues :: Planet -> [SqlValue]
+planetToSqlValues :: Planet -- ^ Takes a Record of type Planet
+                  -> [SqlValue] -- ^ returns an array of SQL Values
 planetToSqlValues planet = [
         toSql $ ParsePlanets.name planet,
         toSql $ convertUnkToNothing $ climate planet,
@@ -147,21 +166,22 @@ planetToSqlValues planet = [
         toSql $ convertUnkToNothing $ terrain planet
     ]
 
-{- | "prepareInsertPlanetSmt" prepares a Posgres statement that inserts values into the Planets table
-    It takes one argument: 
-    - a HDBC Connection
-    It returns an IO with the prepared HDBC Statement 
--}
-prepareInsertPlanetSmt :: Connection -> IO Statement
+
+-- | Prepares a Posgres statement that inserts values into the Planets table
+--
+--   It takes one argument and returns an IO  with a prepared HDBC Statement
+--
+prepareInsertPlanetSmt :: Connection -- ^ Takes a HDBC Connection
+                       -> IO Statement -- ^ returns an IO with the prepared HDBC Statement 
 prepareInsertPlanetSmt conn = prepare conn "INSERT INTO planets VALUES (?,?,?,?,?)"
 
-{- | "savePlanets" saves values to the People table
-    It takes two arguments:
-    - an array containing type 'Species'
-    - an HDBC Connecetion
-    It returns an empty IO
--}
-savePlanets :: [Planet] -> Connection -> IO ()
+-- | Saves values to the Planets table
+--
+--   It takes two arguments and returns an empty IO
+--
+savePlanets :: [Planet] -- ^ takes an array containing type 'Planet'
+            -> Connection -- ^ takes an HDBC Connection
+            -> IO () -- ^ Returns an empty IO
 savePlanets planets conn = do
     stmt <- prepareInsertPlanetSmt conn
     executeMany stmt (map planetToSqlValues planets)
@@ -171,12 +191,13 @@ savePlanets planets conn = do
 --  PEOPLE
 
 
-{- | "personToSqlValues" transforms Person values to SQL
-    It takes one argument: 
-    - a Record of type Person
-    It returns an array of SQL Values
--}
-personToSqlValues :: Person -> [SqlValue]
+-- | Transforms Person values to SQL
+--
+--  It takes a single argument Record of type Person and Returns an Array of SQL Values
+--
+
+personToSqlValues :: Person  -- ^ Takes a Record of type Person
+                  -> [SqlValue] -- ^ returns an array of SQL Values
 personToSqlValues person = [
         toSql $ ParsePeople.name person,
         toSql $ convertUnkToNothing $ gender person,
@@ -185,21 +206,22 @@ personToSqlValues person = [
         toSql $ convertUnkToNothing $ mass person
     ]
 
-{- | "prepareInsertPeopleSmt" prepares a Posgres statement that inserts values into the People table
-    It takes one argument: 
-    - a HDBC Connection
-    It returns an IO with the prepared HDBC Statement 
--}
-prepareInsertPeopleSmt :: Connection -> IO Statement
+
+-- | Prepares a Posgres statement that inserts values into the People table
+--
+--   It takes one argument and returns an IO  with a prepared HDBC Statement
+--
+prepareInsertPeopleSmt :: Connection -- ^ Takes a HDBC Connection
+                       -> IO Statement -- ^ returns an IO with the prepared HDBC Statement 
 prepareInsertPeopleSmt conn = prepare conn "INSERT INTO people VALUES (?,?,?,?,?)"
 
-{- | "savePeople" saves values to the People table
-    It takes two arguments:
-    - an array containing type 'Species'
-    - an HDBC Connecetion
-    It returns an empty IO
--}
-savePeople :: [Person] -> Connection -> IO ()
+-- | Saves values to the Person table
+--
+--   It takes two arguments and returns an empty IO
+--
+savePeople :: [Person] -- ^ takes an array containing type 'Person'
+            -> Connection -- ^ takes an HDBC Connection
+            -> IO () -- ^ Returns an empty IO
 savePeople people conn = do
     stmt <- prepareInsertPeopleSmt conn
     executeMany stmt (map personToSqlValues people)
@@ -209,12 +231,12 @@ savePeople people conn = do
 -- SPECIES
 
 
-{- | "speciesToSqlValues" transforms Species values to SQL
-    It takes one argument: 
-    - a Record of type Species
-    It returns an array of SQL Values
--}
-speciesToSqlValues :: Species -> [SqlValue]
+-- | Transforms Species values to SQL
+--
+--  It takes a single argument Record of type Species and Returns an Array of SQL Values
+--
+speciesToSqlValues :: Species  -- ^ Takes a Record of type Species
+                   -> [SqlValue] -- ^ returns an array of SQL Values
 speciesToSqlValues species = [
         toSql $ ParseSpecies.name species,
         toSql $ convertUnkToNothing $ classification species,
@@ -222,21 +244,22 @@ speciesToSqlValues species = [
         toSql $ extractID $ ParseSpecies.homeworld species
     ]
 
-{- | "prepareInsertSpeciesSmt" prepares a Posgres statement that inserts values into the Species table
-    It takes one argument: 
-    - a HDBC Connection
-    It returns an IO with the prepared HDBC Statement 
--}
-prepareInsertSpeciesSmt :: Connection -> IO Statement
+
+-- | Prepares a Posgres statement that inserts values into the Species table
+--
+--   It takes one argument and returns an IO  with a prepared HDBC Statement
+--
+prepareInsertSpeciesSmt :: Connection -- ^ Takes a HDBC Connection
+                       -> IO Statement -- ^ returns an IO with the prepared HDBC Statement 
 prepareInsertSpeciesSmt conn = prepare conn "INSERT INTO species VALUES (?,?,?,?)"
 
-{- | "saveSpecies" saves values to the Species table
-    It takes two arguments:
-    - an array containing type 'Species'
-    - an HDBC Connecetion
-    It returns an empty IO
--}
-saveSpecies :: [Species] -> Connection -> IO ()
+-- | Saves values to the Species table
+--
+--   It takes two arguments and returns an empty IO
+--
+saveSpecies :: [Species] -- ^ takes an array containing type 'Species'
+            -> Connection -- ^ takes an HDBC Connection
+            -> IO () -- ^ Returns an empty IO
 saveSpecies species conn = do
     stmt <- prepareInsertSpeciesSmt conn
     executeMany stmt (map speciesToSqlValues species)
@@ -246,12 +269,13 @@ saveSpecies species conn = do
 -- FILMS
 
 
-{- | "filmToSqlValues" transforms Film values to SQL
-    It takes one argument: 
-    - a Record of type Film
-    It returns an array of SQL Values
--}
-filmToSqlValues :: Film -> [SqlValue]
+-- | Transforms Film values to SQL
+--
+--  It takes a single argument Record of type Film and Returns an Array of SQL Values
+--
+
+filmToSqlValues :: Film  -- ^ Takes a Record of type Film
+                -> [SqlValue] -- ^ returns an array of SQL Values
 filmToSqlValues film = [
         toSql $ title film,
         toSql $ episode_id film,
@@ -261,21 +285,22 @@ filmToSqlValues film = [
         toSql $ release_date film
     ]
 
-{- | "prepareInsertFilmSmt" prepares a Posgres statement that inserts values into the Films table
-    It takes one argument: 
-    - a HDBC Connection
-    It returns an IO with the prepared HDBC Statement 
--}
-prepareInsertFilmSmt :: Connection -> IO Statement
+
+-- | Prepares a Posgres statement that inserts values into the Film table
+--
+--   It takes one argument and returns an IO  with a prepared HDBC Statement
+--
+prepareInsertFilmSmt :: Connection -- ^ Takes a HDBC Connection
+                       -> IO Statement -- ^ returns an IO with the prepared HDBC Statement 
 prepareInsertFilmSmt conn = prepare conn "INSERT INTO films VALUES (?,?,?,?,?,?)"
 
-{- | "saveFilms" saves values to the Films table
-    It takes two arguments: 
-    - an array of films
-    - a HDBC Connection
-    It returns an empty IO
--}
-saveFilms :: [Film] -> Connection -> IO ()
+-- | Saves values to the Film table
+--
+--   It takes two arguments and returns an empty IO
+--
+saveFilms :: [Film] -- ^ takes an array containing type 'Film'
+            -> Connection -- ^ takes an HDBC Connection
+            -> IO () -- ^ Returns an empty IO
 saveFilms films conn = do
     stmt <- prepareInsertFilmSmt conn
     executeMany stmt (map filmToSqlValues films)

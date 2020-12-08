@@ -1,3 +1,4 @@
+-- | Module to Manage HTTP Requests
 module HTTP
     ( download
     ) where
@@ -9,12 +10,10 @@ import Network.HTTP.Simple
 -- | The "URL" type is for URls
 type URL = String
 
-{- | "download" gets a response from a given URL
-    It takes one argument:
-    - a URL of type URL
-    It returns a ByteString of the response body
--}
-download :: URL -> IO L8.ByteString
+-- | Downloads the response from a given URL
+
+download :: URL -- ^ Takes a URL of type URL
+         -> IO L8.ByteString -- ^ Returns a ByteString of the response body.
 download url = do
     request <- parseRequest url
     response <- httpLBS request
