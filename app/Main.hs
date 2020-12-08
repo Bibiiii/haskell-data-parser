@@ -10,3 +10,4 @@ main = do
     print "Done!"
     print "Querying DB..."
     query 5
+    queryJoin

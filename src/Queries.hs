@@ -1,6 +1,7 @@
 module Queries
     (
         query,
+        queryJoin
     ) where
 
 import Database.HDBC
@@ -14,6 +15,14 @@ import Database.HDBC.PostgreSQL ( connectPostgreSQL )
 
 getVal :: SqlValue -> String
 getVal bytestrobj = fromSql bytestrobj :: String
+
+formatStrings :: [SqlValue] -> [String]
+formatStrings = map getVal
+
+combine :: [[Char]] -> [[Char]] -> [[Char]]
+combine [] _ = []
+combine _ [] = []
+combine (x:xs) (y:ys) = (x ++ ": " ++ y) : combine xs ys
 
 query :: Int -> IO ()
 query maxId = 
@@ -43,6 +52,16 @@ query maxId =
         mapM_ putStrLn nameResults
         mapM_ putStrLn heightResults
         mapM_ putStrLn homeResults
+
+queryJoin :: IO ()
+queryJoin =
+    do
+        conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
+        r <- quickQuery' conn
+             "SELECT people.name, planets.name FROM people INNER JOIN planets ON people.homeworld=planets.planet_id WHERE people.person_id <=10"
+             []
+        let b = mapM formatStrings r
+        mapM_ putStrLn $ combine (head b) (last b)
 
 -- queryOne :: IO Connection
 -- queryOne = 
