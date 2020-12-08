@@ -1,23 +1,13 @@
 module Queries
     (   dropAllTables,
         queryJoin,
-        queryDelete
+        queryDelete,
+        queryInsert,
+        queryFilms
     ) where
 
 import Database.HDBC
-    ( toSql,
-      fromSql,
-      SqlValue,
-      quickQuery',
-      disconnect
-    )
-
-import Database.HDBC.PostgreSQL ( Connection, connectPostgreSQL )
-
-import Database.HDBC
-    ( fromSql, quickQuery', SqlValue, IConnection(disconnect, commit) )
-
-import Database.HDBC.PostgreSQL ( connectPostgreSQL )
+import Database.HDBC.PostgreSQL
 
 getVal :: SqlValue -> String
 getVal stringOutput = fromSql stringOutput :: String
@@ -66,7 +56,6 @@ queryJoin =
         mapM_ putStrLn $ combine (head b) (last b)
         disconnect conn
 
-
 queryDelete :: IO ()
 queryDelete = 
     do -- Connect to the database
@@ -78,6 +67,37 @@ queryDelete =
             []
 
         commit conn
+
+        -- And disconnect from the database
+        disconnect conn
+
+queryInsert :: String -> String -> String -> String -> String -> String -> IO ()
+queryInsert filmName epId crawl director producer release_date = 
+    do -- Connect to the database
+        conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
+
+        -- Run the query
+        quickQuery' conn
+            "INSERT INTO films VALUES (?,?,?,?,?,?)"
+            [toSql filmName, toSql epId, toSql crawl,toSql director,toSql producer,toSql release_date]
+
+        commit conn
+
+        -- And disconnect from the database
+        disconnect conn
+
+queryFilms :: IO ()
+queryFilms = 
+    do -- Connect to the database
+        conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
+
+        -- Run the query
+        r <- quickQuery' conn
+            "SELECT title, producer FROM films"
+            []
+
+        let b = mapM formatStrings r
+        mapM_ putStrLn $ combine (head b) (last b)
 
         -- And disconnect from the database
         disconnect conn

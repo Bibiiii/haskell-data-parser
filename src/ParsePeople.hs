@@ -25,7 +25,7 @@ data Person = Person {
             gender :: String,
             homeworld ::  String,
             films :: [String],
-            species :: [Maybe String],
+            species :: [String],
             vehicles :: [Maybe String],
             starships :: [Maybe String],
             created :: String,
