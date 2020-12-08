@@ -1,12 +1,9 @@
 module Main where
 
-<<<<<<< Updated upstream
 import ProcessJson
 import Queries
-=======
 import ProcessJson ( processJson )
 import Queries ( queryJoin, queryDelete, dropAllTables) 
->>>>>>> Stashed changes
 
 main :: IO ()
 main = do
@@ -20,9 +17,6 @@ main = do
     print "Parsing..."
     print "Done!"
 
-<<<<<<< Updated upstream
-    query 5
-=======
     print "Performing first query - First 10 people and their home planets....."
     queryJoin
     print "Done with first query!"
@@ -35,4 +29,4 @@ main = do
 
     print "Testing delete query....."
     queryJoin
->>>>>>> Stashed changes
+
