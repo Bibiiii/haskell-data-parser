@@ -29,7 +29,7 @@ import Database.HDBC.PostgreSQL ( Connection, connectPostgreSQL )
 import ParsePlanets
     ( Planet(name, climate, diameter, population, terrain) )
 import ParsePeople
-    ( Person(name, gender, homeworld, height, mass) )
+    ( Person(name, gender, homeworld, height, mass, species) )
 import ParseSpecies ( Species(..) )
 import ParseFilms
     ( Film(title, episode_id, opening_crawl, director, producer,
@@ -60,27 +60,6 @@ initialiseDBPlanets =
         commit conn
         return conn
 
--- | Connects to the database and creates a People table
---
---    This function takes no arguments
---
---    This function returns an IO with a HDBC Connection
-initialiseDBPeople :: IO Connection
-initialiseDBPeople =
-    do
-        conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
-        run conn "CREATE TABLE IF NOT EXISTS people (\
-            \name VARCHAR(40), \
-            \gender VARCHAR(40), \
-            \homeworld INT REFERENCES planets (planet_id), \
-            \height VARCHAR(40), \
-            \mass VARCHAR(40), \
-            \person_id SERIAL PRIMARY KEY \
-            \)\
-            \" []
-        commit conn
-        return conn
-
 -- | Connects to the database and creates a Species table
 --
 --    This function takes no arguments
@@ -96,6 +75,28 @@ initialiseDBSpecies =
             \language VARCHAR(40), \
             \homeworld INT REFERENCES planets (planet_id),\
             \species_id SERIAL PRIMARY KEY \
+            \)\
+            \" []
+        commit conn
+        return conn
+
+-- | Connects to the database and creates a People table
+--
+--    This function takes no arguments
+--
+--    This function returns an IO with a HDBC Connection
+initialiseDBPeople :: IO Connection
+initialiseDBPeople =
+    do
+        conn <- connectPostgreSQL "host=localhost dbname=postgres user=postgres password=admin"
+        run conn "CREATE TABLE IF NOT EXISTS people (\
+            \name VARCHAR(40), \
+            \gender VARCHAR(40), \
+            \homeworld INT REFERENCES planets (planet_id), \
+            \height VARCHAR(40), \
+            \mass VARCHAR(40), \
+            \species INT REFERENCES species (species_id), \
+            \person_id SERIAL PRIMARY KEY \
             \)\
             \" []
         commit conn
@@ -147,6 +148,15 @@ extractID url = do
     case url of Nothing -> Nothing
                 Just url -> Just [x | x <- url, isDigit x]
 
+-- |Gets the head of a list
+--
+--  It returns Nothing if the list is empty
+--
+head' :: [a] -- ^ Takes a list of type a
+      -> Maybe a -- ^ Returns the head of the list, or Nothing
+head' []     = Nothing
+head' (x:xs) = Just x
+
 
 -- PLANETS
     
@@ -165,7 +175,6 @@ planetToSqlValues planet = [
         toSql $ convertUnkToNothing $ population planet,
         toSql $ convertUnkToNothing $ terrain planet
     ]
-
 
 -- | Prepares a Posgres statement that inserts values into the Planets table
 --
@@ -203,9 +212,9 @@ personToSqlValues person = [
         toSql $ convertUnkToNothing $ gender person,
         toSql $ extractID $ Just (ParsePeople.homeworld person),
         toSql $ convertUnkToNothing $ height person,
-        toSql $ convertUnkToNothing $ mass person
+        toSql $ convertUnkToNothing $ mass person,
+        toSql $ extractID $ head' (ParsePeople.species person)
     ]
-
 
 -- | Prepares a Posgres statement that inserts values into the People table
 --
@@ -213,7 +222,7 @@ personToSqlValues person = [
 --
 prepareInsertPeopleSmt :: Connection -- ^ Takes a HDBC Connection
                        -> IO Statement -- ^ returns an IO with the prepared HDBC Statement 
-prepareInsertPeopleSmt conn = prepare conn "INSERT INTO people VALUES (?,?,?,?,?)"
+prepareInsertPeopleSmt conn = prepare conn "INSERT INTO people VALUES (?,?,?,?,?,?)"
 
 -- | Saves values to the Person table
 --

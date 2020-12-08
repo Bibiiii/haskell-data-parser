@@ -107,8 +107,8 @@ parseDirectories json = do
                 print err
             Right res -> do
                 processJson (Parse.planets res) "planets"
-                processJson (people res) "people"
                 processJson (Parse.species res) "species"
+                processJson (people res) "people"
                 processJson (Parse.films res) "films"
 
 -- | Processes the API result for a given URL and directory
@@ -127,12 +127,12 @@ processJson url dir = do
         "planets" -> do
             print "Parsing planets"
             catchErr parsePlanets json savePlanetJson
-        "people" -> do
-            print "Parsing people"
-            catchErr parsePeople json savePeopleJson
         "species" -> do
             print "Parsing species"
             catchErr parseSpecies json saveSpeciesJson
+        "people" -> do
+            print "Parsing people"
+            catchErr parsePeople json savePeopleJson
         "films" -> do
             print "Parsing films"
             catchErr parseFilms json saveFilmsJson

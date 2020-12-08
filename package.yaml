@@ -26,6 +26,7 @@ dependencies:
 - aeson
 - HDBC
 - HDBC-postgresql
+- boxes
 
 library:
   source-dirs: src
