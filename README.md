@@ -31,6 +31,7 @@ brew install posgres
 pg_ctl -D /usr/local/var/postgres start
 ```
 The database used in this app is 'postgres'
+
 2. Compile code
 ```
 stack build
