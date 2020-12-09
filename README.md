@@ -42,7 +42,7 @@ stack exec <returned-value-here>
 ```
 Alternatively, compile and run in one command:
 ```
-stack build
+stack run
 ```
 
 # Documentation
