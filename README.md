@@ -5,7 +5,9 @@ The aim of this app is to parse the following directories from the API:
 * People
 * Species
 * Films
+
 The parsed values will save to four PostgreSQL tables of the same name.
+
 The app contains four SQL queries:
 * Drop all tables
 * Join people with planets to get people's homeworld
